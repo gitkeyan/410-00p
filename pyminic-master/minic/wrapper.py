@@ -5,10 +5,15 @@ sys.path.extend(['.', '..'])
 from minic.minic_ast import *
 from c_ast_to_minic import * 
 
+
 class LHSPrinter(NodeVisitor):
     def __init__(self):
         self.varLst = set()  # all variables seen in the code
         self.lhsVar = set()  # variables that have values assigned to it
+      
+    def visit_Decl(self, decl):
+        if decl.init is not None:
+            self.lhsVar.add(decl.name)
         
     def visit_Assignment(self, assignment):
         # get all left hand side variables as written variables
@@ -38,6 +43,8 @@ class LHSPrinter(NodeVisitor):
     def get_LHSVar(self):
         return self.lhsVar
     
+            
+        
 
 # wrap raw C code into a simple 
 def makeDummyCFile(file):
@@ -71,8 +78,6 @@ file = r'write path to file here'
 
 dummyName = makeDummyCFile(file)
 
-
-
 ast = parse_file(dummyName)
 ast2 = transform(ast)
 visitor = LHSPrinter()
@@ -80,5 +85,5 @@ visitor.visit(ast2)
 
 print('Written Variables:')
 print(visitor.get_LHSVar())
-print('Al Variables:')
+print('All Variables:')
 print(visitor.get_AllVar())
