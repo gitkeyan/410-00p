@@ -1,10 +1,14 @@
+import os
+path = r'C:\Users\Meng\Desktop\CSC410\Project\410-00p\pyminic-master\minic'
+os.chdir(path)
+
 from pycparser import parse_file
 from pycparser.c_ast import *
 sys.path.extend(['.', '..'])
 
-
+from minic.minic_ast import *
 from c_ast_to_minic import * 
-from minic_ast import *
+
 
 
 class LHSPrinter(NodeVisitor):
@@ -16,19 +20,29 @@ class LHSPrinter(NodeVisitor):
         # The assignment node has a 'lvalue' field, we just
         # want to show it here
         varName = assignment.lvalue.name
+        
         self.varLst.add(varName)
         self.lhsVar.add(varName) 
         
-        print(assignment.lvalue)
-        print(assignment.rvalue)
+        rval = assignment.rvalue
+        self.visit(rval)
         
+
+    def visit_BinaryOp(self, binaryOp):
+        self.visit(binaryOp.left)
+        self.visit(binaryOp.right)
         
+    def visit_ID(self, id):
+        self.varLst.add(id.name)
+        
+    
     def get_AllVar(self):
         return self.varLst
         
         
     def get_LHSVar(self):
         return self.lhsVar
+    
             
         
 
@@ -60,7 +74,7 @@ def makeDummyCFile(file):
 
 
 # write file name here
-file = r'write path to file here'
+file = r'file name here'
 
 dummyName = makeDummyCFile(file)
 
@@ -70,5 +84,9 @@ ast = parse_file(dummyName)
 ast2 = transform(ast)
 visitor = LHSPrinter()
 visitor.visit(ast2)
+
 print('Written Variables:')
 print(visitor.get_LHSVar())
+print('Al Variables:')
+print(visitor.get_AllVar())
+
