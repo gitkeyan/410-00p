@@ -1,5 +1,3 @@
-
-
 from pycparser import parse_file
 from pycparser.c_ast import *
 sys.path.extend(['.', '..'])
@@ -7,21 +5,20 @@ sys.path.extend(['.', '..'])
 from minic.minic_ast import *
 from c_ast_to_minic import * 
 
-
-
 class LHSPrinter(NodeVisitor):
     def __init__(self):
         self.varLst = set()  # all variables seen in the code
         self.lhsVar = set()  # variables that have values assigned to it
         
     def visit_Assignment(self, assignment):
-        # The assignment node has a 'lvalue' field, we just
-        # want to show it here
-        varName = assignment.lvalue.name
+        # get all left hand side variables as written variables
         
-        self.varLst.add(varName)
-        self.lhsVar.add(varName) 
+        if isinstance(assignment.lvalue, ID):
+            varName = assignment.lvalue.name
+            self.varLst.add(varName)
+            self.lhsVar.add(varName) 
         
+        # check if any right hand side variables have been written to
         rval = assignment.rvalue
         self.visit(rval)
         
@@ -41,8 +38,6 @@ class LHSPrinter(NodeVisitor):
     def get_LHSVar(self):
         return self.lhsVar
     
-            
-        
 
 # wrap raw C code into a simple 
 def makeDummyCFile(file):
@@ -71,8 +66,8 @@ def makeDummyCFile(file):
     return str(fileName)
 
 
-# write file name here
-file = r'file name here'
+# write path to file here
+file = r'write path to file here'
 
 dummyName = makeDummyCFile(file)
 
@@ -87,4 +82,3 @@ print('Written Variables:')
 print(visitor.get_LHSVar())
 print('Al Variables:')
 print(visitor.get_AllVar())
-
