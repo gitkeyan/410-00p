@@ -1,3 +1,7 @@
+from pycparser import parse_file
+from pycparser.c_ast import *
+sys.path.extend(['.', '..'])
+
 from minic_ast import *
 from c_ast_to_minic import * 
 
