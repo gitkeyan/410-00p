@@ -14,7 +14,12 @@ class LHSPrinter(NodeVisitor):
     def visit_Decl(self, decl):
         if decl.init is not None:
             self.lhsVar.add(decl.name)
-        
+            self.varLst.add(decl.name)
+            self.visit(decl.init)
+        else:
+            if not isinstance(decl.type, FuncDecl):
+                self.varLst.add(decl.name)
+
     def visit_Assignment(self, assignment):
         # get all left hand side variables as written variables
         
@@ -34,6 +39,11 @@ class LHSPrinter(NodeVisitor):
         
     def visit_ID(self, id):
         self.varLst.add(id.name)
+        
+    def visit_FuncCall(self, funcCall):
+        for exprs, child in funcCall.args.children():
+            self.visit(child)
+                
         
     
     def get_AllVar(self):
@@ -76,7 +86,9 @@ def makeDummyCFile(file):
 # write path to file here
 file = r'write path to file here'
 
-dummyName = makeDummyCFile(file)
+dummyName = file#makeDummyCFile(file)
+
+
 
 ast = parse_file(dummyName)
 ast2 = transform(ast)
