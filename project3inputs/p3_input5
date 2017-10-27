@@ -1,0 +1,5 @@
+b = a == c;
+if(b) {
+	int e = 2*a;
+	int d;
+}
