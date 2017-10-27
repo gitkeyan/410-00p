@@ -1,6 +1,4 @@
-import os
-path = r'C:\Users\Meng\Desktop\CSC410\Project\410-00p\pyminic-master\minic'
-os.chdir(path)
+
 
 from pycparser import parse_file
 from pycparser.c_ast import *
