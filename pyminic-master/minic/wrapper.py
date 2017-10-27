@@ -67,8 +67,8 @@ dummyName = makeDummyCFile(file)
 
 
 ast = parse_file(dummyName)
-ast2 = ast
+ast2 = transform(ast)
 visitor = LHSPrinter()
-visitor.visit(ast)
+visitor.visit(ast2)
 print('Written Variables:')
 print(visitor.get_LHSVar())
