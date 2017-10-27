@@ -1,3 +1,6 @@
+# example of how to run this script
+# python wrapper.py /Users/abc/Desktop/project3inputs/p3_input3
+
 from pycparser import parse_file
 from pycparser.c_ast import *
 sys.path.extend(['.', '..'])
@@ -82,13 +85,10 @@ def makeDummyCFile(file):
     
     return str(fileName)
 
+inputFile = sys.argv[1]
 
-# write path to file here
-file = r'write path to file here'
-
-dummyName = file#makeDummyCFile(file)
-
-
+#dummyName = inputFile
+dummyName = makeDummyCFile(inputFile)
 
 ast = parse_file(dummyName)
 ast2 = transform(ast)
