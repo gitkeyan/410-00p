@@ -13,7 +13,18 @@ class LHSPrinter(NodeVisitor):
     def __init__(self):
         self.varLst = set()  # all variables seen in the code
         self.lhsVar = set()  # variables that have values assigned to it
-      
+    
+    def __str__(self):
+        allVarStr = ""
+        writtenVarLst = []
+        for e in self.varLst:
+            allVarStr += str(e)+ ", "
+        for e in self.lhsVar:
+            writtenVarLst.insert(0,e) 
+        if (len(allVarStr) != 0):
+            allVarStr = allVarStr[:-2]
+        return "int* block_function(" + allVarStr +  ") " + "return" + str(writtenVarLst)
+
     def visit_Decl(self, decl):
         if decl.init is not None:
             self.lhsVar.add(decl.name)
@@ -80,7 +91,7 @@ def makeDummyCFile(file):
     else:
         fileName = file[:extensionInd] + 'Dummy' + file[extensionInd:]
     f = open(fileName, 'w')
-    f.write("int dummy(){\n" + newInput + "    return 0;\n}")
+    f.write("int* block_function(){\n" + newInput + "    return 0;\n}")
     f.close()
     
     return str(fileName)
@@ -95,7 +106,9 @@ ast2 = transform(ast)
 visitor = LHSPrinter()
 visitor.visit(ast2)
 
-print('Written Variables:')
-print(visitor.get_LHSVar())
-print('All Variables:')
-print(visitor.get_AllVar())
+print(visitor)
+
+#print('Written Variables:')
+#print(visitor.get_LHSVar())
+#print('All Variables:')
+#print(visitor.get_AllVar())
