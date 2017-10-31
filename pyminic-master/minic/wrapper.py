@@ -24,7 +24,7 @@ class LHSPrinter(NodeVisitor):
         for e in self.lhsVar:
             writtenVarLst.insert(0,e) 
         
-        return "int* block_function" + str(allVarTuple) + " return " + str(writtenVarLst)
+        return "int* block_function" + str(allVarTuple).replace("'","") + " return " + str(writtenVarLst).replace("'","")
 
     def visit_Decl(self, decl):
         if decl.init is not None:
