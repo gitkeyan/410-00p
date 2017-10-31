@@ -14,16 +14,17 @@ class LHSPrinter(NodeVisitor):
         self.varLst = set()  # all variables seen in the code
         self.lhsVar = set()  # variables that have values assigned to it
     
+
     def __str__(self):
-        allVarStr = ""
+        allVarTuple = ()
         writtenVarLst = []
         for e in self.varLst:
-            allVarStr += str(e)+ ", "
+            allVarTuple += (e,)
+
         for e in self.lhsVar:
             writtenVarLst.insert(0,e) 
-        if (len(allVarStr) != 0):
-            allVarStr = allVarStr[:-2]
-        return "int* block_function(" + allVarStr +  ") " + "return" + str(writtenVarLst)
+        
+        return "int* block_function" + str(allVarTuple) + " return " + str(writtenVarLst)
 
     def visit_Decl(self, decl):
         if decl.init is not None:
