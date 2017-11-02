@@ -1,0 +1,9 @@
+int a;
+int b;
+int c = c1 + c2;
+
+if (c > 0){
+	d1 = d2;
+}else{
+	int d3;
+}
