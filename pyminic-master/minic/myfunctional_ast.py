@@ -627,8 +627,26 @@ class While(Node):
 
     attr_names = ()
 
+class ReturnTuples(Node):
+    __slots__ = ('exprs', 'coord', '__weakref__')
 
+    def __init__(self, exprs, coord=None):
+        self.exprs = exprs
+        self.coord = coord
 
+    def children(self):
+        nodelist = []
+        for i, child in enumerate(self.exprs or []):
+            nodelist.append(("exprs[%d]" % i, child))
+        return tuple(nodelist)
+
+    attr_names = ()
+
+class Let(Node):
+    __slots__ = ('exprs')
+    
+    def __init__(self, exprs):
+        self.exprs = exprs    
 
 # class ArrayDecl(Node):
 #     __slots__ = ('type', 'dim', 'dim_quals', 'coord', '__weakref__')
