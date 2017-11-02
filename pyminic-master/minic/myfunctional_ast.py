@@ -643,10 +643,11 @@ class ReturnTuples(Node):
     attr_names = ()
 
 class Let(Node):
-    __slots__ = ('exprs')
+    __slots__ = ('exprs', 'coord', '__weakref__')
     
-    def __init__(self, exprs):
-        self.exprs = exprs    
+    def __init__(self, exprs, coord=None):
+        self.exprs = exprs   
+        self.coord = coord
 
 # class ArrayDecl(Node):
 #     __slots__ = ('type', 'dim', 'dim_quals', 'coord', '__weakref__')
