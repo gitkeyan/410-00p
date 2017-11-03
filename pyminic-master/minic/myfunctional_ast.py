@@ -677,41 +677,41 @@ class Let(Node):
     __slots__ = ('ident', 'assignedExpr', 'type', 'bodyExpr', 'coord', '__weakref__')
     
     def __init__(self, ident, assignedExpr, ttype, bodyExpr, coord=None):
-		self.ident = ident                  # identifier
+	self.ident = ident                  # identifier
         self.assignedExpr = assignedExpr    # expression
-		self.type = ttype                   # type of the identifier
-		self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
+	self.type = ttype                   # type of the identifier
+	self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
         self.coord = coord
 	
-	def children(self):
-		nodelist = []
-		nodelist.append(("ident",self.ident))
+    def children(self):
+        nodelist = []
+        nodelist.append(("ident",self.ident))
         nodelist.append(("assignedExpr",self.assignedExpr))
-		nodelist.append(("type", self.type))
-		nodelist.append(("bodyExpr:",self.bodyExpr))
+        nodelist.append(("type", self.type))
+        nodelist.append(("bodyExpr:",self.bodyExpr))
         return tuple(nodelist)
 		
-	attr_names = ()
+    attr_names = ()
 	
 class Letrec(Node):
     __slots__ = ('args', 'ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
     
     def __init__(self, args, ident, assignedExpr, bodyExpr, coord=None):
-		self.ident = ident                    # identifier
-		self.args = args                      # arglist
+	self.ident = ident                    # identifier
+	self.args = args                      # arglist
         self.assignedExpr = assignedExpr      # expression
-		self.bodyExpr = bodyExpr              # body expression (the expression after 'in')
+	self.bodyExpr = bodyExpr              # body expression (the expression after 'in')
         self.coord = coord
 	
-	def children(self):
-		nodelist = []
-		nodelist.append(("ident",self.ident))
-		nodelist.append(("args", self.args))
+    def children(self):
+        nodelist = []
+        nodelist.append(("ident",self.ident))
+        nodelist.append(("args", self.args))
         nodelist.append(("assignedExpr",self.assignedExpr)
-		nodelist.append(("bodyExpr",self.bodyExpr))
+        nodelist.append(("bodyExpr",self.bodyExpr))
         return tuple(nodelist)
 		
-	attr_names = ()
+    attr_names = ()
 	
 
 # class ArrayDecl(Node):
