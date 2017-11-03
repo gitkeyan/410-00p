@@ -643,42 +643,38 @@ class ReturnTuples(Node):
     attr_names = ()
 
 class Let(Node):
-    __slots__ = ('idents', 'assignedExprs', 'bodyExpr', 'coord', '__weakref__')
+    __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
     
-    def __init__(self, idents, assignedExprs, bodyExpr, coord=None):
-	self.idents = idents
-        self.assignedExprs = assignedExprs  
-	self.bodyExpr = bodyExpr
+    def __init__(self, ident, assignedExpr, bodyExpr, coord=None):
+        self.ident = ident                  # identifier
+        self.assignedExpr = assignedExpr    # expression
+        self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
         self.coord = coord
 	
     def children(self):
         nodelist = []
-	for i in range(len(self.idents)):
-	    nodelist.append(("idents[%d]" % i,self.idents[i]))
-	    nodelist.append(("assignedExprs[%d]" % i,self.assignedExprs[i]))
-
+        nodelist.append(("ident",self.ident))
+        nodelist.append(("assignedExpr",self.assignedExpr))
 	nodelist.append(("bodyExpr:",self.bodyExpr))
         return tuple(nodelist)
 		
     attr_names = ()
 	
 class Letrec(Node):
-    __slots__ = ('args', 'ident', 'assignedExprs', 'bodyExpr', 'coord', '__weakref__')
+    __slots__ = ('args', 'ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
     
-    def __init__(self, args, ident, assignedExprs, bodyExpr, coord=None):
-	self.ident = idents
-	self.args = args
-        self.assignedExprs = assignedExprs  
-	self.bodyExpr = bodyExpr
+    def __init__(self, args, ident, assignedExpr, bodyExpr, coord=None):
+        self.ident = ident                    # identifier
+        self.args = args                      # arglist
+        self.assignedExpr = assignedExpr      # expression
+        self.bodyExpr = bodyExpr              # body expression (the expression after 'in')
         self.coord = coord
 	
     def children(self):
         nodelist = []
-        nodelist.append(("idents",self.ident))
-        for i in range(len(self.idents)):
-            nodelist.append(("args[%d]" % i, self.args));
-            nodelist.append(("assignedExprs[%d]" % i,self.assignedExprs[i]))
-		
+	nodelist.append(("ident",self.ident))
+	nodelist.append(("args", self.args))
+        nodelist.append(("assignedExpr",self.assignedExpr)
 	nodelist.append(("bodyExpr",self.bodyExpr))
         return tuple(nodelist)
 		
