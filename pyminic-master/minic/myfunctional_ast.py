@@ -707,7 +707,7 @@ class Letrec(Node):
         nodelist = []
         nodelist.append(("ident",self.ident))
         nodelist.append(("args", self.args))
-        nodelist.append(("assignedExpr",self.assignedExpr)
+        nodelist.append(("assignedExpr",self.assignedExpr))
         nodelist.append(("bodyExpr",self.bodyExpr))
         return tuple(nodelist)
 		
