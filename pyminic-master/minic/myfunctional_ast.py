@@ -10,6 +10,24 @@
 
 import sys
 
+'''
+Note: commented out Node classes are the classes we are planning to remove
+currently commented out classes:
+
+    Loop nodes will be replaced by letrec:
+    - DoWhile      to be replaced by letrec
+    - While        to be replaced by letrec
+    - For          to be replaced by letrec
+	
+	Let and Letrec's stores returned expression as child node:
+	- Return       let and letrec stores expression to be returned
+
+	Let binding replaces variable declaration and assignment:
+	- Assignment
+	
+	Let and Letrec wraps the entire block, so don't need Block:
+	- Block
+'''
 
 class Node(object):
     __slots__ = ()
@@ -150,7 +168,7 @@ class ArrayRef(Node):
 
     attr_names = ()
 
-
+'''
 class Assignment(Node):
     __slots__ = ('lvalue', 'rvalue', 'coord', '__weakref__')
 
@@ -164,7 +182,7 @@ class Assignment(Node):
         if self.lvalue is not None: nodelist.append(("lvalue", self.lvalue))
         if self.rvalue is not None: nodelist.append(("rvalue", self.rvalue))
         return tuple(nodelist)
-
+'''
 
 class BinaryOp(Node):
     __slots__ = ('op', 'left', 'right', 'coord', '__weakref__')
@@ -183,7 +201,7 @@ class BinaryOp(Node):
 
     attr_names = ('op', )
 
-
+'''
 class Block(Node):
     __slots__ = ('block_items', 'coord', '__weakref__')
 
@@ -198,7 +216,7 @@ class Block(Node):
         return tuple(nodelist)
 
     attr_names = ()
-
+'''
 
 class Constant(Node):
     __slots__ = ('type', 'value', 'coord', '__weakref__')
@@ -250,7 +268,7 @@ class DeclList(Node):
     attr_names = ()
 
 
-
+'''
 class DoWhile(Node):
     __slots__ = ('cond', 'stmt', 'coord', '__weakref__')
 
@@ -266,6 +284,7 @@ class DoWhile(Node):
         return tuple(nodelist)
 
     attr_names = ()
+'''
 
 
 class EmptyStatement(Node):
@@ -310,7 +329,7 @@ class FileAST(Node):
 
     attr_names = ()
 
-
+'''
 class For(Node):
     __slots__ = ('init', 'cond', 'next', 'stmt', 'coord', '__weakref__')
 
@@ -330,7 +349,7 @@ class For(Node):
         return tuple(nodelist)
 
     attr_names = ()
-
+'''
 
 class FuncCall(Node):
     __slots__ = ('name', 'args', 'coord', '__weakref__')
@@ -512,6 +531,7 @@ class PtrDecl(Node):
     attr_names = ('quals', )
 
 
+'''
 class Return(Node):
     __slots__ = ('expr', 'coord', '__weakref__')
 
@@ -525,7 +545,7 @@ class Return(Node):
         return tuple(nodelist)
 
     attr_names = ()
-
+'''
 
 class TernaryOp(Node):
     __slots__ = ('cond', 'iftrue', 'iffalse', 'coord', '__weakref__')
@@ -610,7 +630,7 @@ class Union(Node):
 
     attr_names = ('name', )
 
-
+'''
 class While(Node):
     __slots__ = ('cond', 'stmt', 'coord', '__weakref__')
 
@@ -626,6 +646,7 @@ class While(Node):
         return tuple(nodelist)
 
     attr_names = ()
+'''
 
 class ReturnTuples(Node):
     __slots__ = ('exprs', 'coord', '__weakref__')
@@ -646,39 +667,40 @@ class Let(Node):
     __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
     
     def __init__(self, ident, assignedExpr, bodyExpr, coord=None):
-        self.ident = ident                  # identifier
+		self.ident = ident                  # identifier
         self.assignedExpr = assignedExpr    # expression
-        self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
+		self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
         self.coord = coord
 	
-    def children(self):
-        nodelist = []
-        nodelist.append(("ident",self.ident))
+	def children(self):
+		nodelist = []
+		nodelist.append(("ident",self.ident))
         nodelist.append(("assignedExpr",self.assignedExpr))
-	nodelist.append(("bodyExpr:",self.bodyExpr))
+		nodelist.append(("bodyExpr:",self.bodyExpr))
         return tuple(nodelist)
 		
-    attr_names = ()
+	attr_names = ()
 	
 class Letrec(Node):
     __slots__ = ('args', 'ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
     
     def __init__(self, args, ident, assignedExpr, bodyExpr, coord=None):
-        self.ident = ident                    # identifier
-        self.args = args                      # arglist
+		self.ident = ident                    # identifier
+		self.args = args                      # arglist
         self.assignedExpr = assignedExpr      # expression
-        self.bodyExpr = bodyExpr              # body expression (the expression after 'in')
+		self.bodyExpr = bodyExpr              # body expression (the expression after 'in')
         self.coord = coord
 	
-    def children(self):
-        nodelist = []
-	nodelist.append(("ident",self.ident))
-	nodelist.append(("args", self.args))
+	def children(self):
+		nodelist = []
+		nodelist.append(("ident",self.ident))
+		nodelist.append(("args", self.args))
         nodelist.append(("assignedExpr",self.assignedExpr)
-	nodelist.append(("bodyExpr",self.bodyExpr))
+		nodelist.append(("bodyExpr",self.bodyExpr))
         return tuple(nodelist)
 		
-    attr_names = ()
+	attr_names = ()
+	
 
 # class ArrayDecl(Node):
 #     __slots__ = ('type', 'dim', 'dim_quals', 'coord', '__weakref__')
