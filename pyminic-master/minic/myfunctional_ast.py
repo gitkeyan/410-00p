@@ -19,11 +19,23 @@ currently commented out classes:
     - While        to be replaced by letrec
     - For          to be replaced by letrec
 	
-    Let and Letrec's stores returned expression as child node:
-    - Return       let and letrec stores expression to be returned
+	Let and Letrec's stores returned expression as child node:
+	- Return       let and letrec stores expression to be returned
 	
-    Let and Letrec wraps the entire block, so don't need Block:
-    - Block
+	Let and Letrec wraps the entire block, so don't need Block:
+	- Block
+	
+	Let is used to for variable assignment and local variable initialization,
+	so we don't need the following declaration nodes, assignment node, and type info:
+	- Typename           (type info currently stored in let)
+	- TypeDecl
+	- ArrayDecl
+	- Decl
+	- DeclList
+	- PtrDecl
+	- Assignment
+	
+	(FuncDecl is current kept for lambda expression)
 '''
 
 class Node(object):
@@ -133,7 +145,7 @@ class NodeVisitor(object):
         for c_name, c in node.children():
             self.visit(c)
 
-
+'''
 class ArrayDecl(Node):
     __slots__ = ('type', 'dim', 'coord', '__weakref__')
     def __init__(self, type, dim, coord=None):
@@ -148,7 +160,7 @@ class ArrayDecl(Node):
         return tuple(nodelist)
 
     attr_names = ('dim_quals', )
-
+'''
 
 class ArrayRef(Node):
     __slots__ = ('name', 'subscript', 'coord', '__weakref__')
@@ -165,7 +177,7 @@ class ArrayRef(Node):
 
     attr_names = ()
 
-
+'''
 class Assignment(Node):
     __slots__ = ('lvalue', 'rvalue', 'coord', '__weakref__')
 
@@ -179,7 +191,7 @@ class Assignment(Node):
         if self.lvalue is not None: nodelist.append(("lvalue", self.lvalue))
         if self.rvalue is not None: nodelist.append(("rvalue", self.rvalue))
         return tuple(nodelist)
-
+'''
 
 class BinaryOp(Node):
     __slots__ = ('op', 'left', 'right', 'coord', '__weakref__')
@@ -229,7 +241,7 @@ class Constant(Node):
 
     attr_names = ('type', 'value', )
 
-
+'''
 class Decl(Node):
     __slots__ = ('name', 'funcspec', 'type', 'init', 'coord', '__weakref__')
 
@@ -263,7 +275,7 @@ class DeclList(Node):
         return tuple(nodelist)
 
     attr_names = ()
-
+'''
 
 '''
 class DoWhile(Node):
@@ -512,7 +524,7 @@ class ParamList(Node):
 
     attr_names = ()
 
-
+'''
 class PtrDecl(Node):
     __slots__ = ('type', 'coord', '__weakref__')
 
@@ -526,7 +538,7 @@ class PtrDecl(Node):
         return tuple(nodelist)
 
     attr_names = ('quals', )
-
+'''
 
 '''
 class Return(Node):
@@ -562,7 +574,7 @@ class TernaryOp(Node):
 
     attr_names = ()
 
-
+'''
 class Typename(Node):
     __slots__ = ('name', 'type', 'coord', '__weakref__')
 
@@ -593,7 +605,7 @@ class TypeDecl(Node):
         return tuple(nodelist)
 
     attr_names = ('name', )
-
+'''
 
 class UnaryOp(Node):
     __slots__ = ('op', 'expr', 'coord', '__weakref__')
@@ -659,13 +671,15 @@ class ReturnTuples(Node):
         return tuple(nodelist)
 
     attr_names = ()
-
+	
+	
 class Let(Node):
-    __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
+    __slots__ = ('ident', 'assignedExpr', 'type', 'bodyExpr', 'coord', '__weakref__')
     
-    def __init__(self, ident, assignedExpr, bodyExpr, coord=None):
+    def __init__(self, ident, assignedExpr, ttype, bodyExpr, coord=None):
 		self.ident = ident                  # identifier
         self.assignedExpr = assignedExpr    # expression
+		self.type = ttype                   # type of the identifier
 		self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
         self.coord = coord
 	
@@ -673,6 +687,7 @@ class Let(Node):
 		nodelist = []
 		nodelist.append(("ident",self.ident))
         nodelist.append(("assignedExpr",self.assignedExpr))
+		nodelist.append(("type", self.type))
 		nodelist.append(("bodyExpr:",self.bodyExpr))
         return tuple(nodelist)
 		
