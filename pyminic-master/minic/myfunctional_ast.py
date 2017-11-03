@@ -643,11 +643,46 @@ class ReturnTuples(Node):
     attr_names = ()
 
 class Let(Node):
-    __slots__ = ('exprs', 'coord', '__weakref__')
+    __slots__ = ('idents', 'assignedExprs', 'bodyExpr', 'coord', '__weakref__')
     
-    def __init__(self, exprs, coord=None):
-        self.exprs = exprs   
+    def __init__(self, idents, assignedExprs, bodyExpr, coord=None):
+		self.idents = idents
+        self.assignedExprs = assignedExprs  
+		self.bodyExpr = bodyExpr
         self.coord = coord
+	
+	def children(self):
+		nodelist = []
+        for i in range(len(self.idents)):
+			nodelist.append(("idents[%d]" % i,self.idents[i]))
+            nodelist.append(("assignedExprs[%d]" % i,self.assignedExprs[i]))
+		
+		nodelist.append(("bodyExpr:",self.bodyExpr))
+        return tuple(nodelist)
+		
+	attr_names = ()
+	
+class Letrec(Node):
+    __slots__ = ('args', 'ident', 'assignedExprs', 'bodyExpr', 'coord', '__weakref__')
+    
+    def __init__(self, args, ident, assignedExprs, bodyExpr, coord=None):
+		self.ident = idents
+		self.args = args
+        self.assignedExprs = assignedExprs  
+		self.bodyExpr = bodyExpr
+        self.coord = coord
+	
+	def children(self):
+		nodelist = []
+		nodelist.append(("idents",self.ident))
+        for i in range(len(self.idents)):
+			nodelist.append(("args[%d]" % i, self.args));
+            nodelist.append(("assignedExprs[%d]" % i,self.assignedExprs[i]))
+		
+		nodelist.append(("bodyExpr",self.bodyExpr))
+        return tuple(nodelist)
+		
+	attr_names = ()
 
 # class ArrayDecl(Node):
 #     __slots__ = ('type', 'dim', 'dim_quals', 'coord', '__weakref__')
