@@ -19,14 +19,11 @@ currently commented out classes:
     - While        to be replaced by letrec
     - For          to be replaced by letrec
 	
-	Let and Letrec's stores returned expression as child node:
-	- Return       let and letrec stores expression to be returned
-
-	Let binding replaces variable declaration and assignment:
-	- Assignment
+    Let and Letrec's stores returned expression as child node:
+    - Return       let and letrec stores expression to be returned
 	
-	Let and Letrec wraps the entire block, so don't need Block:
-	- Block
+    Let and Letrec wraps the entire block, so don't need Block:
+    - Block
 '''
 
 class Node(object):
@@ -168,7 +165,7 @@ class ArrayRef(Node):
 
     attr_names = ()
 
-'''
+
 class Assignment(Node):
     __slots__ = ('lvalue', 'rvalue', 'coord', '__weakref__')
 
@@ -182,7 +179,7 @@ class Assignment(Node):
         if self.lvalue is not None: nodelist.append(("lvalue", self.lvalue))
         if self.rvalue is not None: nodelist.append(("rvalue", self.rvalue))
         return tuple(nodelist)
-'''
+
 
 class BinaryOp(Node):
     __slots__ = ('op', 'left', 'right', 'coord', '__weakref__')
