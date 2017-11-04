@@ -1,5 +1,5 @@
 # example of how to run this script
-# python wrapper.py /Users/abc/Desktop/project3inputs/p3_input3
+# python checkin1.py /Users/abc/Desktop/project3inputs/p3_input3
 import os
 from pycparser import parse_file
 from pycparser.c_ast import *
