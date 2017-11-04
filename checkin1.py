@@ -101,9 +101,7 @@ ast2 = transform(ast)
 visitor = LHSPrinter()
 visitor.visit(ast2)
 
-print(visitor)
-
-#print('Written Variables:')
-#print(visitor.get_LHSVar())
-#print('All Variables:')
-#print(visitor.get_AllVar())
+print('Written Variables:')
+print(visitor.get_LHSVar())
+print('All Variables:')
+print(visitor.get_AllVar())
