@@ -7,9 +7,9 @@ python wrapper.py /Users/abc/Desktop/project3inputs/p3_input3
 
 Checkin # 2:
 
-  Task # 1:
+  *Task # 1:
   to run, do 
   python checkin2.py /Users/abc/Desktop/project3inputs/p3_input3
 
-  Task # 2:
+  *Task # 2:
   Nodes are written in myfunctional_ast.py 
