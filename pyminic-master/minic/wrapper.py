@@ -1,6 +1,6 @@
 # example of how to run this script
 # python wrapper.py /Users/abc/Desktop/project3inputs/p3_input3
-
+import os
 from pycparser import parse_file
 from pycparser.c_ast import *
 sys.path.extend(['.', '..'])
@@ -83,19 +83,16 @@ def makeDummyCFile(file):
     newInput = "";
     for line in input:
         newInput += "    " + line + "\n"
-    
-    
-    extensionInd = file.rfind('.')
-    fileName = ""
-    if extensionInd == -1:
-        fileName = file + 'Dummy'
-    else:
-        fileName = file[:extensionInd] + 'Dummy' + file[extensionInd:]
+        
+    fileName, file_extension = os.path.splitext(file)  
+    fileName +=  'Dummy' + file_extension 
+        
     f = open(fileName, 'w')
     f.write("int* block_function(){\n" + newInput + "    return 0;\n}")
     f.close()
     
     return str(fileName)
+
 
 inputFile = sys.argv[1]
 
