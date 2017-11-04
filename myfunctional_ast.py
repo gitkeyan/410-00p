@@ -36,6 +36,9 @@ currently commented out classes:
 	- Assignment
 	
 	(FuncDecl is current kept for lambda expression)
+	
+    Removed class Label by commenting it out.
+    (Removal of class Label suggested by Victor)
 '''
 
 class Node(object):
@@ -474,7 +477,7 @@ class InitList(Node):
 
     attr_names = ()
 
-
+'''
 class Label(Node):
     __slots__ = ('name', 'stmt', 'coord', '__weakref__')
 
@@ -489,7 +492,7 @@ class Label(Node):
         return tuple(nodelist)
 
     attr_names = ('name', )
-
+'''
 
 class NamedInitializer(Node):
     __slots__ = ('name', 'expr', 'coord', '__weakref__')
