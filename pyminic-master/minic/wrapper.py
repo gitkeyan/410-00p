@@ -18,13 +18,12 @@ class LHSPrinter(NodeVisitor):
     def __str__(self):
         allVarTuple = ()
         writtenVarLst = []
-        for e in self.varLst:
-            allVarTuple += (e,)
 
-        for e in self.lhsVar:
-            writtenVarLst.insert(0,e) 
+        # use difference between all variables list and declared variable list 
+        # to find all non-declared variables
+        nonDeclaredVars = self.varLst.difference(self.declaredVar)
         
-        return "int* block_function" + str(allVarTuple).replace("'","") + " return " + str(writtenVarLst).replace("'","")
+        return "func block_function" + str(tuple(nonDeclaredVars)) + " return " + str(list(self.lhsVar))
 
     def visit_Decl(self, decl):
         if decl.init is not None:
@@ -68,8 +67,6 @@ class LHSPrinter(NodeVisitor):
     def get_LHSVar(self):
         return self.lhsVar
     
-            
-        
 
 # wrap raw C code into a simple 
 def makeDummyCFile(file):
