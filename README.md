@@ -2,7 +2,7 @@
 Checkin # 1:
 to run, do
 
-python checkin.py /Users/abc/Desktop/project3inputs/p3_input3
+python checkin1.py /Users/abc/Desktop/project3inputs/p3_input3
 * As of Checkin # 2, wrapper.py is modified to perform checkin # 2's task # 1
 * wrapper.py is now renamed to checkin1.py and will still print the output needed from checkin # 1
 
