@@ -23,13 +23,8 @@ class LHSPrinter(NodeVisitor):
         # use difference between all variables list and declared variable list 
         # to find all non-declared variables
         nonDeclaredVars = self.varLst.difference(self.declaredVar)
-        for e in nonDeclaredVars:
-            allVarTuple += (e,)
-
-        for e in self.lhsVar:
-            writtenVarLst.insert(0,e) 
         
-        return "int* block_function" + str(allVarTuple).replace("'","") + " return " + str(writtenVarLst).replace("'","")
+        return "func block_function" + str(tuple(nonDeclaredVars)) + " return " + str(list(self.lhsVar))
 
     def visit_Decl(self, decl):
         if decl.init is not None:
