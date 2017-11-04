@@ -5,8 +5,8 @@ from pycparser import parse_file
 from pycparser.c_ast import *
 sys.path.extend(['.', '..'])
 
-from minic.minic_ast import *
-from c_ast_to_minic import * 
+from pyminicMaster.minic.minic_ast import *
+from pyminicMaster.c_ast_to_minic import * 
 
 
 class LHSPrinter(NodeVisitor):
