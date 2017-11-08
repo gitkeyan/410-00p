@@ -7,6 +7,7 @@ sys.path.extend(['.', '..'])
 
 from pyminicMaster.minic.minic_ast import *
 from pyminicMaster.c_ast_to_minic import * 
+import os
 
 
 class LHSPrinter(NodeVisitor):
@@ -24,7 +25,8 @@ class LHSPrinter(NodeVisitor):
         # to find all non-declared variables
         nonDeclaredVars = self.varLst.difference(self.declaredVar)
         
-        return "func block_function" + str(tuple(nonDeclaredVars)) + " return " + str(list(self.lhsVar))
+        #return "func block_function" + str(tuple(nonDeclaredVars)) + " return " + str(list(self.lhsVar))
+        return 'func block_function' +'(' + ','.join(map(str, nonDeclaredVars)) + ')' + " return " + '[' + ','.join(map(str, self.lhsVar)) + ']'
 
     def visit_Decl(self, decl):
         if decl.init is not None:
