@@ -60,11 +60,10 @@ class LHSPrinter(NodeVisitor):
         self.varLst.add(id.name)
         
     def visit_FuncCall(self, funcCall):
-        for exprs, child in funcCall.args.children():
-            self.visit(child)
+        if funcCall is not None:
+            for exprs, child in funcCall.args.children():
+                self.visit(child)
                 
-        
-    
     def get_AllVar(self):
         return self.varLst
         
