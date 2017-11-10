@@ -179,6 +179,16 @@ def minicToFunctional(ast, blockItemLst, returnLst):
 
     return None
 
+    if isinstance(ast, FuncCall):
+        args = []
+        if ast.args is not None:
+            for arg in ast.args.exprs:
+                if isinstance(arg, Assignment):
+                    args += [minicToFunctional(arg, [], [arg.lvalue.name])]
+                else:
+                    args += [minicToFunctional(arg, [], returnLst)]
+        name = minicToFunctional(ast.name, blockItemLst, returnLst)
+        return my.FuncCall(name, args)
 
 ast2 = transform(ast)
 
