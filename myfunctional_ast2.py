@@ -379,7 +379,10 @@ class TernaryOp(Node):
         if self.iftrue is not None: nodelist.append(("iftrue", self.iftrue))
         if self.iffalse is not None: nodelist.append(("iffalse", self.iffalse))
         return tuple(nodelist)
-
+    
+    def __str__(self):
+        return "if " + str(self.cond) + " then " + str(self.iftrue) + " else " + str(self.iffalse)
+    
     attr_names = ()
 
 class UnaryOp(Node):
