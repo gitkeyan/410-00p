@@ -121,17 +121,17 @@ import myfunctional_ast2 as my
 # returnLst:    list of availiable bindings
 
 def minicToFunctional(ast, blockItemLst, returnLst):
-    
+
     if isinstance(ast, FileAST):
         statement = None
         
         blockItems = ast.ext[0].body.block_items
+
         statementCount = len(blockItems)
         for i in range(statementCount):
             statement = minicToFunctional(blockItems[i], blockItems[i+1:], [])
             if statement is not None:
                 break
-            
         return statement
     
     
@@ -153,6 +153,7 @@ def minicToFunctional(ast, blockItemLst, returnLst):
             
     # convert assignment statement to let ... = ... in ...
     if isinstance(ast, Assignment):
+        
         lvalueName = ast.lvalue.name  # get name of left hand side variable
         rvalue = minicToFunctional(ast.rvalue, [], returnLst)    # get right hand side expression 
         
@@ -170,7 +171,12 @@ def minicToFunctional(ast, blockItemLst, returnLst):
 
     if isinstance(ast, Return):
         return returnLst
-    
+
+    if isinstance(ast, BinaryOp):
+        left = minicToFunctional(ast.left,[],returnLst)
+        right = minicToFunctional(ast.right,[],returnLst)
+        return my.BinaryOp(ast.op,left,right)
+
     return None
 
 

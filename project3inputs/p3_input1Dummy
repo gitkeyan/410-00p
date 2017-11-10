@@ -1,0 +1,5 @@
+int* block_function(){
+    b = a + 3;
+    
+    return 0;
+}

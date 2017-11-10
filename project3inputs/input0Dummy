@@ -1,0 +1,6 @@
+int* block_function(){
+    a = b + c;
+    d = e + f;
+    
+    return 0;
+}
