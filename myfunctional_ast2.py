@@ -250,21 +250,20 @@ class FuncCall(Node):
     
     attr_names = ()
 
-
 class FuncDef(Node):
-    __slots__ = ('decl', 'body', 'coord', '__weakref__')
+    __slots__ = ('parameters', 'body', 'returns', 'coord', '__weakref__')
 
-    def __init__(self, decl, param_decls, body, coord=None):
-        self.param_decls = param_decls
-        self.body = body
+    def __init__(self, parameters, body, returns, coord=None):
+        self.parameters = parameters   # list of variables undeclared in block provided
+        self.body = body               # body of function 
+        self.returns = returns         # list of written variables
         self.coord = coord
 
     def children(self):
         nodelist = []
-        if self.decl is not None: nodelist.append(("decl", self.decl))
+        if self.parameters is not None: nodelist.append(("decl", self.decl))
         if self.body is not None: nodelist.append(("body", self.body))
-        for i, child in enumerate(self.param_decls or []):
-            nodelist.append(("param_decls[%d]" % i, child))
+        if self.returns is not None: nodelist.append(("body", self.body))
         return tuple(nodelist)
 
     attr_names = ()
