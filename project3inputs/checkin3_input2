@@ -2,4 +2,5 @@ int a;
 a = 10;
 
 int b = 8;
-c = a = c;
+c = a;
+a = c;
