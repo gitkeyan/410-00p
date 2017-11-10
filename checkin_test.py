@@ -193,6 +193,15 @@ def minicToFunctional(ast, blockItemLst, returnLst):
                     args += [minicToFunctional(arg, [], returnLst)]
         name = minicToFunctional(ast.name, blockItemLst, returnLst)
         return my.FuncCall(name, args)
+
+    if isinstance(ast, ArrayRef):        
+        if isinstance(ast.subscript, Assignment):
+            subscript = minicToFunctional(ast.subscript, [], [ast.subscript.lvalue.name])
+        else:
+            print(ast.subscript)
+            subscript = minicToFunctional(ast.subscript, [], returnLst)
+        #subscript = minicToFunctional(ast.subscript,[],returnLst)
+        return my.ArrayRef(ast.name.name, subscript);
     
     return None
 
