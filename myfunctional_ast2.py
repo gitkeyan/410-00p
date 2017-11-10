@@ -239,7 +239,14 @@ class FuncCall(Node):
         if self.name is not None: nodelist.append(("name", self.name))
         if self.args is not None: nodelist.append(("args", self.args))
         return tuple(nodelist)
+    
+    def __str__(self):
+        argString = ""
+        for arg in self.args:
+            argString += str(arg) + ", ";
 
+        return str(self.name) + "(" + argString[:-2] + ")" 
+    
     attr_names = ()
 
 
