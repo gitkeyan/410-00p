@@ -174,7 +174,7 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         return my.Constant(ast.value)
 
     if isinstance(ast, Return):
-        return returnLst
+        return list(set(returnLst))
 
     if isinstance(ast, BinaryOp):
         left = minicToFunctional(ast.left,[],returnLst)
