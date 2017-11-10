@@ -129,7 +129,8 @@ class ArrayRef(Node):
         if self.name is not None: nodelist.append(("name", self.name))
         if self.subscript is not None: nodelist.append(("subscript", self.subscript))
         return tuple(nodelist)
-
+    def __str__(self):
+        return str(self.name) +"["+ str(self.subscript) + "]"
     attr_names = ()
 
 '''
