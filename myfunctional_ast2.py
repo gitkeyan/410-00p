@@ -460,6 +460,14 @@ class Letrec(Node):
         nodelist.append(("bodyExpr",self.bodyExpr))
         return tuple(nodelist)
 
+    def __str__(self):
+        if isinstance(self.bodyExpr, list):
+            returnLst = "("
+            for exp in self.bodyExpr:
+                returnLst += str(exp) + ", "
+            return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
+        else:
+            return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
     attr_names = ()
 
 
