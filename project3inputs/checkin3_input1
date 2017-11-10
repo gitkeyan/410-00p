@@ -1,4 +1,4 @@
 int a;
 a = 10;
 
-int b = 10;
+int b = a > 0 ? 1 : 2;
