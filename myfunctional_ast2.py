@@ -164,7 +164,7 @@ class BinaryOp(Node):
         if self.right is not None: nodelist.append(("right", self.right))
         return tuple(nodelist)
     def __str__(self):
-        return str(self.left) + str(self.op) + str(self.right)
+        return str(self.left) + " " + str(self.op) + " " +  str(self.right)
     attr_names = ('op', )
 
 
