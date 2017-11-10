@@ -176,9 +176,13 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         left = minicToFunctional(ast.left,[],returnLst)
         right = minicToFunctional(ast.right,[],returnLst)
         return my.BinaryOp(ast.op,left,right)
-
-    return None
-
+    
+    if isinstance(ast, TernaryOp):
+        iftrue = minicToFunctional(ast.iftrue,[],returnLst)
+        iffalse = minicToFunctional(ast.iffalse,[],returnLst)
+        cond = minicToFunctional(ast.cond,[],returnLst)
+        return my.TernaryOp(cond, iftrue, iffalse)
+    
     if isinstance(ast, FuncCall):
         args = []
         if ast.args is not None:
@@ -189,6 +193,8 @@ def minicToFunctional(ast, blockItemLst, returnLst):
                     args += [minicToFunctional(arg, [], returnLst)]
         name = minicToFunctional(ast.name, blockItemLst, returnLst)
         return my.FuncCall(name, args)
+    
+    return None
 
 ast2 = transform(ast)
 
