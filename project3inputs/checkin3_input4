@@ -1,0 +1,4 @@
+a = foo1(a,b,c);
+
+d = foo2(e = foo3(), foo4(a,b), g = 10);
+f = foo5();
