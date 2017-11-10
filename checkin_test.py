@@ -155,10 +155,11 @@ def minicToFunctional(ast, blockItemLst, returnLst):
     if isinstance(ast, Assignment):
         
         lvalueName = ast.lvalue.name  # get name of left hand side variable
-        if isinstance(ast.rvalue, Assignment):
-            rv = minicToFunctional(ast.rvalue, [], [ast.rvalue.lvalue.name])
-        else:
-            rv = minicToFunctional(ast.rvalue, [], returnLst)
+        # for future reference 
+        #if isinstance(ast.rvalue, Assignment):
+        #    rv = minicToFunctional(ast.rvalue, [], [ast.rvalue.lvalue.name])
+        #else:
+        rv = minicToFunctional(ast.rvalue, [], returnLst)
 
         
         if not blockItemLst:
@@ -198,17 +199,19 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         name = minicToFunctional(ast.name, blockItemLst, returnLst)
         return my.FuncCall(name, args)
 
-    if isinstance(ast, ArrayRef):        
-        if isinstance(ast.subscript, Assignment):
-            subscript = minicToFunctional(ast.subscript, [], [ast.subscript.lvalue.name])
-        else:
-            subscript = minicToFunctional(ast.subscript, [], returnLst)
+    if isinstance(ast, ArrayRef):
+        # for future reference      
+        #if isinstance(ast.subscript, Assignment):
+        #    subscript = minicToFunctional(ast.subscript, [], [ast.subscript.lvalue.name])
+        #else:
+        subscript = minicToFunctional(ast.subscript, [], returnLst)
         return my.ArrayRef(ast.name.name, subscript);
     if isinstance(ast, UnaryOp):
-        if isinstance(ast.expr, Assignment):
-            expr = minicToFunctional(ast.expr, [], [ast.expr.lvalue.name])
-        else:
-            expr = minicToFunctional(ast.expr, [], returnLst)
+        # for future reference 
+        #if isinstance(ast.expr, Assignment):
+        #    expr = minicToFunctional(ast.expr, [], [ast.expr.lvalue.name])
+        #else:
+        expr = minicToFunctional(ast.expr, [], returnLst)
         return my.UnaryOp(ast.op, expr)
     
     return None
