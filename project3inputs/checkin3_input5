@@ -1,0 +1,6 @@
+int c = !(c <= -foo(a,b));
+d = foo(b,c)==-foo(2);
+
+e = e + e;
+--e;
+d1 = e > c ? 1 : 2; 

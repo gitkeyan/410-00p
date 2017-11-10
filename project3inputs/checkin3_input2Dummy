@@ -1,0 +1,9 @@
+int* block_function(){
+    int a;
+    a = 10;
+    
+    int b = 8;
+    c = a;
+    a = c;
+    return 0;
+}

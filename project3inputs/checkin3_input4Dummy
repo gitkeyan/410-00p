@@ -1,0 +1,7 @@
+int* block_function(){
+    a = foo1(a,b,c);
+    d = foo2(foo3(), foo4(a,b), 10);
+    f = foo5();
+    
+    return 0;
+}
