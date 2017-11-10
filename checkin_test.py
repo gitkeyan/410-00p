@@ -155,13 +155,17 @@ def minicToFunctional(ast, blockItemLst, returnLst):
     if isinstance(ast, Assignment):
         
         lvalueName = ast.lvalue.name  # get name of left hand side variable
-        rvalue = minicToFunctional(ast.rvalue, [], returnLst)    # get right hand side expression 
+        if isinstance(ast.rvalue, Assignment):
+            rv = minicToFunctional(ast.rvalue, [], [ast.rvalue.lvalue.name])
+        else:
+            rv = minicToFunctional(ast.rvalue, [], returnLst)
+
         
         if not blockItemLst:
             body = returnLst
         else:
             body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [lvalueName])
-        return my.Let(lvalueName, rvalue, body)
+        return my.Let(lvalueName, rv, body)
         
     if isinstance(ast, ID):
         return my.ID(ast.name)
@@ -198,10 +202,14 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         if isinstance(ast.subscript, Assignment):
             subscript = minicToFunctional(ast.subscript, [], [ast.subscript.lvalue.name])
         else:
-            print(ast.subscript)
             subscript = minicToFunctional(ast.subscript, [], returnLst)
-        #subscript = minicToFunctional(ast.subscript,[],returnLst)
         return my.ArrayRef(ast.name.name, subscript);
+    if isinstance(ast, UnaryOp):
+        if isinstance(ast.expr, Assignment):
+            expr = minicToFunctional(ast.expr, [], [ast.expr.lvalue.name])
+        else:
+            expr = minicToFunctional(ast.expr, [], returnLst)
+        return my.UnaryOp(ast.op, expr)
     
     return None
 

@@ -399,6 +399,9 @@ class UnaryOp(Node):
         if self.expr is not None: nodelist.append(("expr", self.expr))
         return tuple(nodelist)
 
+    def __str__(self):
+        return str(self.op) + "(" +str(self.expr) + ")"
+
     attr_names = ('op', )
 
 
