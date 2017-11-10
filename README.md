@@ -16,3 +16,15 @@ Checkin # 2:
 
   *Task # 2:
   Nodes are written in myfunctional_ast.py 
+
+Checkin # 3:
+  the node classes for our functional programming ASTs are in file myfunctional_ast2.py
+  we've added 5 new inputs for checkin 3:
+    checkin3_input1
+    checkin3_input2
+    checkin3_input3
+    checkin3_input4
+    checkin3_input5
+    
+  to run, do
+  python checkin_test.py project3inputs/checkin3_input1
