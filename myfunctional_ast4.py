@@ -449,9 +449,9 @@ class Let(Node):
             returnLst = "("
             for exp in self.bodyExpr:
                 returnLst += str(exp) + ", "
-            return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
+            return "Let " + str(self.ident).replace('\'', '') + " = " + str(self.assignedExpr).replace('\'', '') + "\nin\n" + returnLst[:-2] + ")"
         else:
-            return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
+            return "Let " + str(self.ident).replace('\'', '') + " = " + str(self.assignedExpr).replace('\'', '') + "\nin\n" + str(self.bodyExpr)
 
     attr_names = ()
 
