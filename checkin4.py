@@ -260,7 +260,13 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         
         # items = ast.ext[0].body.block_items
         #items[0].iftrue.block_items
-        return None
+        iftrue = minicToFunctional(ast.iftrue,[],returnLst)
+        iffalse = minicToFunctional(ast.iffalse,[],returnLst)
+        cond = minicToFunctional(ast.cond,[],returnLst)
+        return my.TernaryOp(cond, iftrue, iffalse)
+        #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
+    if isinstance(ast, Block):
+        return str(minicToFunctional(ast.block_items[0],ast.block_items[1:],returnLst))
     
     
     return None
