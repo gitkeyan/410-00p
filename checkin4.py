@@ -249,21 +249,30 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         
     # ---------------- Checkin 4 starts here -----------------------------------
     if isinstance(ast, If):
-        # ast.iftrue is Compound
+        # get all the written variables
+        visitor1 = LHSPrinter()
+        visitor1.visit(ast.iftrue)
+        visitor2 = LHSPrinter()
+        visitor2.visit(ast.iffalse)
+        
+        # add the variables together
+        allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
+        
+        iftrue = minicToFunctional(ast.iftrue,[],allLhs)  # returnLst) 
+        iffalse = minicToFunctional(ast.iffalse,[],allLhs)  # returnLst)
+        cond = minicToFunctional(ast.cond,[],[])   # returnLst)
+        
+        ternary = my.TernaryOp(cond, iftrue, iffalse)
         
         
-        # else:
-        # ast.iffalse is Compound
+        if not blockItemLst:
+            body = returnLst
+        else:
+            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + allLhs)
         
-        # else if:
-        # ast.iffalse is a new If object
+        letStatement = my.Let(tuple(allLhs), ternary, body)
         
-        # items = ast.ext[0].body.block_items
-        #items[0].iftrue.block_items
-        iftrue = minicToFunctional(ast.iftrue,[],returnLst)
-        iffalse = minicToFunctional(ast.iffalse,[],returnLst)
-        cond = minicToFunctional(ast.cond,[],returnLst)
-        return my.TernaryOp(cond, iftrue, iffalse)
+        return letStatement
         #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
     if isinstance(ast, Block):
         statement = None
@@ -275,7 +284,6 @@ def minicToFunctional(ast, blockItemLst, returnLst):
             if statement is not None:
                 break
         return statement
-
     
     
     return None
