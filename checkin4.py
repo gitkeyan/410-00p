@@ -252,14 +252,24 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         # get all the written variables
         visitor1 = LHSPrinter()
         visitor1.visit(ast.iftrue)
-        visitor2 = LHSPrinter()
-        visitor2.visit(ast.iffalse)
         
-        # add the variables together
-        allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
+        # determine all written variables in if and else
+        if ast.iffalse is None:
+            allLhs = list(visitor1.get_LHSVar())
+        else:
+            visitor2 = LHSPrinter()
+            visitor2.visit(ast.iffalse)
+            
+            # add the variables together
+            allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
         
         iftrue = minicToFunctional(ast.iftrue,[],allLhs)  # returnLst) 
-        iffalse = minicToFunctional(ast.iffalse,[],allLhs)  # returnLst)
+        
+        if ast.iffalse is None:
+            iffalse = tuple(allLhs)    # make the else statement when it doesn't exist
+        else:
+            # convert else statement to Let
+            iffalse = minicToFunctional(ast.iffalse,[],allLhs)  # returnLst)
         cond = minicToFunctional(ast.cond,[],[])   # returnLst)
         
         ternary = my.TernaryOp(cond, iftrue, iffalse)
