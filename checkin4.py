@@ -266,7 +266,16 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         return my.TernaryOp(cond, iftrue, iffalse)
         #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
     if isinstance(ast, Block):
-        return str(minicToFunctional(ast.block_items[0],ast.block_items[1:],returnLst))
+        statement = None
+        blockItems = ast.block_items
+
+        statementCount = len(blockItems)
+        for i in range(statementCount):
+            statement = minicToFunctional(blockItems[i], blockItems[i+1:], returnLst)
+            if statement is not None:
+                break
+        return statement
+
     
     
     return None
