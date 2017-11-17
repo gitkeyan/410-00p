@@ -289,6 +289,7 @@ class ID(Node):
     def __str__(self):
         return str(self.name)
 
+
     attr_names = ('name', )
 
 
@@ -371,13 +372,13 @@ class Return(Node):
 '''
 
 class TernaryOp(Node):
-    __slots__ = ('cond', 'iftrue', 'iffalse', 'coord', '__weakref__')
+    __slots__ = ('cond', 'iftrue', 'iffalse', 'level', '__weakref__')
 
-    def __init__(self, cond, iftrue, iffalse, coord=None):
+    def __init__(self, cond, iftrue, iffalse, level = 0):
         self.cond = cond
         self.iftrue = iftrue
         self.iffalse = iffalse
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -427,13 +428,13 @@ class ReturnTuples(Node):
 
 
 class Let(Node):
-    __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')
+    __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'level', '__weakref__')
     
-    def __init__(self, ident, assignedExpr, bodyExpr, coord=None):
+    def __init__(self, ident, assignedExpr, bodyExpr, level = 0):
         self.ident = ident                  # identifier
         self.assignedExpr = assignedExpr    # expression
         self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -449,9 +450,22 @@ class Let(Node):
             returnLst = "("
             for exp in self.bodyExpr:
                 returnLst += str(exp) + ", "
-            return "Let " + str(self.ident).replace('\'', '') + " = " + str(self.assignedExpr).replace('\'', '') + "\nin\n" + returnLst[:-2] + ")"
+            
+            
+            output = self.level * "    " + "Let " + str(self.ident) + " = " 
+            output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n" 
+            output += (self.level + 1) * "    " + returnLst[:-2] + ")"
+            return output
+            
+            #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
         else:
-            return "Let " + str(self.ident).replace('\'', '') + " = " + str(self.assignedExpr).replace('\'', '') + "\nin\n" + str(self.bodyExpr)
+            output = self.level * "    " + "Let " + str(self.ident) + " = " 
+            output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n"  
+            output += str(self.bodyExpr)
+            return output
+            
+            
+            #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
 
     attr_names = ()
 
