@@ -143,7 +143,7 @@ import myfunctional_ast4 as my
 # blockItemLst: list of statements to be read in the block
 # returnLst:    list of availiable bindings
 
-def minicToFunctional(ast, blockItemLst, returnLst):
+def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
 
     if isinstance(ast, FileAST):
         statement = None
@@ -152,7 +152,7 @@ def minicToFunctional(ast, blockItemLst, returnLst):
 
         statementCount = len(blockItems)
         for i in range(statementCount):
-            statement = minicToFunctional(blockItems[i], blockItems[i+1:], [])
+            statement = minicToFunctional(blockItems[i], blockItems[i+1:], [], level)
             if statement is not None:
                 break
         return statement
@@ -165,14 +165,14 @@ def minicToFunctional(ast, blockItemLst, returnLst):
             if not blockItemLst:
                 body = returnLst
             else:
-                body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [ast.name])
+                body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [ast.name], level + 1)
             
-            return my.Let(ast.name, init, body)
+            return my.Let(ast.name, init, body, level)
         else:
             if not blockItemLst:
                 return returnLst
             else:
-                return minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst)
+                return minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst, level)
             
     # convert assignment statement to let ... = ... in ...
     if isinstance(ast, Assignment):
@@ -190,8 +190,8 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         if not blockItemLst:
             body = returnLst
         else:
-            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [identifier])
-        return my.Let(identifier, rv, body)
+            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [identifier], level + 1)
+        return my.Let(identifier, rv, body, level)
         
     if isinstance(ast, ID):
         return my.ID(ast.name)
@@ -233,6 +233,7 @@ def minicToFunctional(ast, blockItemLst, returnLst):
         
         subscript = minicToFunctional(ast.subscript, [], returnLst)
         return my.ArrayRef(name, subscript);
+        
     if isinstance(ast, UnaryOp):
         # for future reference 
         #if isinstance(ast.expr, Assignment):
@@ -300,5 +301,5 @@ def minicToFunctional(ast, blockItemLst, returnLst):
 
 ast2 = transform(ast)
 
-functionalAST = minicToFunctional(ast2, [], [])
+functionalAST = minicToFunctional(ast2, [], [], 1)
 print(functionalAST)
