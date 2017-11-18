@@ -44,4 +44,4 @@ Checkin # 3:
         - checkin3_input5<br />
         - checkin4_input1<br />
         - checkin4_input2<br />
-        - checlin4_input3<br />
+        - checkin4_input3<br />
