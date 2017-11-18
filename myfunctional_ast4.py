@@ -118,11 +118,11 @@ class NodeVisitor(object):
             self.visit(c)
 
 class ArrayRef(Node):
-    __slots__ = ('name', 'subscript', 'coord', '__weakref__')
-    def __init__(self, name, subscript, coord=None):
+    __slots__ = ('name', 'subscript', 'level', '__weakref__')
+    def __init__(self, name, subscript, level = 0):
         self.name = name
         self.subscript = subscript
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -130,7 +130,7 @@ class ArrayRef(Node):
         if self.subscript is not None: nodelist.append(("subscript", self.subscript))
         return tuple(nodelist)
     def __str__(self):
-        return str(self.name) +"["+ str(self.subscript) + "]"
+        return self.level * "    " + str(self.name) +"["+ str(self.subscript) + "]"
     attr_names = ()
 
 '''
@@ -150,13 +150,13 @@ class Assignment(Node):
 '''
 
 class BinaryOp(Node):
-    __slots__ = ('op', 'left', 'right', 'coord', '__weakref__')
+    __slots__ = ('op', 'left', 'right', 'level', '__weakref__')
 
-    def __init__(self, op, left, right, coord=None):
+    def __init__(self, op, left, right, level = 0):
         self.op = op
         self.left = left
         self.right = right
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -164,23 +164,23 @@ class BinaryOp(Node):
         if self.right is not None: nodelist.append(("right", self.right))
         return tuple(nodelist)
     def __str__(self):
-        return "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
+        return self.level * "    " + "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
     attr_names = ('op', )
 
 
 class Constant(Node):
-    __slots__ = ('value', 'coord', '__weakref__')
+    __slots__ = ('value', 'level', '__weakref__')
 
-    def __init__(self, value, coord=None):
+    def __init__(self, value, level=0):
         self.value = value
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
         return tuple(nodelist)
         
     def __str__(self):
-        return str(self.value)
+        return self.level * "    " + str(self.value)
     attr_names = ('value', )
 
 
@@ -234,12 +234,12 @@ class FileAST(Node):
 
 
 class FuncCall(Node):
-    __slots__ = ('name', 'args', 'coord', '__weakref__')
+    __slots__ = ('name', 'args', 'level', '__weakref__')
 
-    def __init__(self, name, args, coord=None):
+    def __init__(self, name, args, level = 0):
         self.name = name
         self.args = args
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -252,7 +252,7 @@ class FuncCall(Node):
         for arg in self.args:
             argString += str(arg) + ", ";
 
-        return str(self.name) + "(" + argString[:-2] + ")" 
+        return self.level * "    " + str(self.name) + "(" + argString[:-2] + ")" 
     
     attr_names = ()
 
@@ -276,18 +276,18 @@ class FuncDef(Node):
 
 
 class ID(Node):
-    __slots__ = ('name', 'coord', '__weakref__')
+    __slots__ = ('name', 'level', '__weakref__')
 
-    def __init__(self, name, coord=None):
+    def __init__(self, name, level = 0):
         self.name = name
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
         return tuple(nodelist)
 
     def __str__(self):
-        return str(self.name)
+        return self.level * "    " + str(self.name)
 
 
     attr_names = ('name', )
@@ -388,17 +388,24 @@ class TernaryOp(Node):
         return tuple(nodelist)
     
     def __str__(self):
-        return "if " + str(self.cond) + " then " + str(self.iftrue) + " else " + str(self.iffalse)
+        output = self.level * "    " + "if " + str(self.cond) + "\n"
+        output += self.level * "    " + "then\n"
+        output +=  str(self.iftrue) + "\n"    # (self.level + 1) * "    " +
+        output += self.level * "    " + "else" + "\n"
+        output += str(self.iffalse)   # (self.level + 1) * "    " + 
+        
+        return output
+        #return "if " + str(self.cond) + " then " + str(self.iftrue) + " else " + str(self.iffalse)
     
     attr_names = ()
 
 class UnaryOp(Node):
-    __slots__ = ('op', 'expr', 'coord', '__weakref__')
+    __slots__ = ('op', 'expr', 'level', '__weakref__')
 
-    def __init__(self, op, expr, coord=None):
+    def __init__(self, op, expr, level = 0):
         self.op = op
         self.expr = expr
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -406,17 +413,17 @@ class UnaryOp(Node):
         return tuple(nodelist)
 
     def __str__(self):
-        return str(self.op) + "(" +str(self.expr) + ")"
+        return self.level * "    " + str(self.op) + "(" +str(self.expr) + ")"
 
     attr_names = ('op', )
 
 
 class ReturnTuples(Node):
-    __slots__ = ('exprs', 'coord', '__weakref__')
+    __slots__ = ('exprs', 'level', '__weakref__')
 
-    def __init__(self, exprs, coord=None):
+    def __init__(self, exprs, level = 0):
         self.exprs = exprs
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -424,6 +431,15 @@ class ReturnTuples(Node):
             nodelist.append(("exprs[%d]" % i, child))
         return tuple(nodelist)
 
+    def __str__(self):
+        output = ""
+        if isinstance(self.exprs, tuple):
+            output = "("
+            for i in self.exprs:
+                output += str(i) + ", "
+                
+            output = output[:-2] + ")"
+        return self.level * "    " + output
     attr_names = ()
 
 
@@ -446,20 +462,24 @@ class Let(Node):
     #def __str__(self):
         #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
     def __str__(self):
+        output = self.level * "    " + "Let " + str(self.ident) + " = " 
+        
+        #if isinstance(self.assignedExpr, TernaryOp):
+        output += "\n"
+        
         if isinstance(self.bodyExpr, list):
             returnLst = "("
             for exp in self.bodyExpr:
                 returnLst += str(exp) + ", "
             
             
-            output = self.level * "    " + "Let " + str(self.ident) + " = " 
+            
             output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n" 
             output += (self.level + 1) * "    " + returnLst[:-2] + ")"
             return output
             
             #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
         else:
-            output = self.level * "    " + "Let " + str(self.ident) + " = " 
             output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n"  
             output += str(self.bodyExpr)
             return output
