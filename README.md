@@ -29,3 +29,19 @@ Checkin # 3:
 
   to run, do
   python checkin_test.py project3inputs/checkin3_input1
+  
+  
+  Checkin # 4:
+    the node classes for our functional programming ASTs are in file myfunctional_ast4.py
+    
+  to run, do
+  python checkin4.py project3inputs/checkin4_input1
+  we have updated the following input under project3input for testing purposes:
+    checkin3_input1
+    checkin3_input2
+    checkin3_input3
+    checkin3_input4
+    checkin3_input5
+    checkin4_input1
+    checkin4_input2
+    checlin4_input3
