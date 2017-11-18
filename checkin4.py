@@ -133,6 +133,13 @@ ast1 = transform(ast)
 visitor = LHSPrinter()
 visitor.visit(ast1)
 
+print("Input:\n")
+f = open(dummyName, 'r')
+input = f.read()
+print(input)
+f.close()
+
+print("\n\n----- Output: -----\n")
 print(visitor)
 
 # ------------------------ Checkin 3 starts here -------------------------------
@@ -161,7 +168,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     # filters and convert declaration statement to let ... = ... in ...
     if isinstance(ast, Decl):   
         if ast.init is not None:
-            init = minicToFunctional(ast.init, [], returnLst)
+            init = minicToFunctional(ast.init, [], returnLst, level + 1)
             if not blockItemLst:
                 body = returnLst
             else:
@@ -184,9 +191,8 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         #if isinstance(ast.rvalue, Assignment):
         #    rv = minicToFunctional(ast.rvalue, [], [ast.rvalue.lvalue.name])
         #else:
-        rv = minicToFunctional(ast.rvalue, [], returnLst)
+        rv = minicToFunctional(ast.rvalue, [], returnLst, level + 1)
 
-        
         if not blockItemLst:
             body = returnLst
         else:
@@ -194,10 +200,10 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return my.Let(identifier, rv, body, level)
         
     if isinstance(ast, ID):
-        return my.ID(ast.name)
+        return my.ID(ast.name, level)
         
     if isinstance(ast, Constant):
-        return my.Constant(ast.value)
+        return my.Constant(ast.value, level)
 
     if isinstance(ast, Return):
         return list(set(str(element) for element in returnLst))
@@ -205,13 +211,13 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     if isinstance(ast, BinaryOp):
         left = minicToFunctional(ast.left,[],returnLst)
         right = minicToFunctional(ast.right,[],returnLst)
-        return my.BinaryOp(ast.op,left,right)
+        return my.BinaryOp(ast.op,left,right, level)
     
     if isinstance(ast, TernaryOp):
-        iftrue = minicToFunctional(ast.iftrue,[],returnLst)
-        iffalse = minicToFunctional(ast.iffalse,[],returnLst)
+        iftrue = minicToFunctional(ast.iftrue,[],returnLst, level + 1)
+        iffalse = minicToFunctional(ast.iffalse,[],returnLst, level + 1)
         cond = minicToFunctional(ast.cond,[],returnLst)
-        return my.TernaryOp(cond, iftrue, iffalse)
+        return my.TernaryOp(cond, iftrue, iffalse, level)
     
     if isinstance(ast, FuncCall):
         args = []
@@ -222,7 +228,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
                 else:
                     args += [minicToFunctional(arg, [], returnLst)]
         name = minicToFunctional(ast.name, blockItemLst, returnLst)
-        return my.FuncCall(name, args)
+        return my.FuncCall(name, args, level)
 
     if isinstance(ast, ArrayRef):
         # for future reference      
@@ -232,7 +238,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         name = minicToFunctional(ast.name, [], returnLst)
         
         subscript = minicToFunctional(ast.subscript, [], returnLst)
-        return my.ArrayRef(name, subscript);
+        return my.ArrayRef(name, subscript, level);
         
     if isinstance(ast, UnaryOp):
         # for future reference 
@@ -240,7 +246,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         #    expr = minicToFunctional(ast.expr, [], [ast.expr.lvalue.name])
         #else:
         expr = minicToFunctional(ast.expr, [], returnLst)
-        return my.UnaryOp(ast.op, expr)
+        return my.UnaryOp(ast.op, expr, level)
     
     
     if isinstance(ast, ExprList):
@@ -264,24 +270,24 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
             # add the variables together
             allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
         
-        iftrue = minicToFunctional(ast.iftrue,[],allLhs)  # returnLst) 
+        iftrue = minicToFunctional(ast.iftrue,[],allLhs, level + 2)  # returnLst) 
         
         if ast.iffalse is None:
-            iffalse = tuple(allLhs)    # make the else statement when it doesn't exist
+            iffalse = my.ReturnTuples(tuple(allLhs), level + 2)    # make the else statement when it doesn't exist
         else:
             # convert else statement to Let
-            iffalse = minicToFunctional(ast.iffalse,[],allLhs)  # returnLst)
+            iffalse = minicToFunctional(ast.iffalse,[],allLhs, level + 2)  # returnLst)
         cond = minicToFunctional(ast.cond,[],[])   # returnLst)
         
-        ternary = my.TernaryOp(cond, iftrue, iffalse)
+        ternary = my.TernaryOp(cond, iftrue, iffalse, level + 1)
         
-        
+
         if not blockItemLst:
-            body = returnLst
+            body = my.ReturnTuples(returnLst, level + 1) #returnLst
         else:
-            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + allLhs)
+            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + allLhs, level + 1)
         
-        letStatement = my.Let(tuple(allLhs), ternary, body)
+        letStatement = my.Let(tuple(allLhs), ternary, body, level)
         
         return letStatement
         #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
@@ -291,7 +297,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
 
         statementCount = len(blockItems)
         for i in range(statementCount):
-            statement = minicToFunctional(blockItems[i], blockItems[i+1:], returnLst)
+            statement = minicToFunctional(blockItems[i], blockItems[i+1:], returnLst, level)
             if statement is not None:
                 break
         return statement
