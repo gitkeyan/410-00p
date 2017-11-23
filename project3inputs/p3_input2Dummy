@@ -1,9 +1,0 @@
-int* block_function(){
-    if(b) {
-          k = k + 1;
-    } else {
-          k = k - 1;
-    }
-    c = a[k];
-    return 0;
-}

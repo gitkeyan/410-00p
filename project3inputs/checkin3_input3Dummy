@@ -1,6 +1,0 @@
-int* block_function(){
-    a = (b==c);
-    b = a || (b && d);
-    c = !c;
-    return 0;
-}

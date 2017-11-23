@@ -1,8 +1,0 @@
-int* block_function(){
-    b = a == c;
-    if(b) {
-          e = 2*a;
-    }
-    
-    return 0;
-}
