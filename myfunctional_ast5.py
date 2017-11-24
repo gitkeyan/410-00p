@@ -167,23 +167,6 @@ class BinaryOp(Node):
         return self.level * "    " + "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
     attr_names = ('op', )
 
-class BinaryOpSimplified(Node):
-    __slots__ = ('op', 'left', 'right', 'level', '__weakref__')
-
-    def __init__(self, op, left, right, level = 0):
-        self.op = op
-        self.left = left
-        self.right = right
-        self.level = level
-
-    def children(self):
-        nodelist = []
-        if self.left is not None: nodelist.append(("left", self.left))
-        if self.right is not None: nodelist.append(("right", self.right))
-        return tuple(nodelist)
-    def __str__(self):
-        return "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
-    attr_names = ('op', )
 
 class Constant(Node):
     __slots__ = ('value', 'level', '__weakref__')
@@ -198,21 +181,6 @@ class Constant(Node):
         
     def __str__(self):
         return self.level * "    " + str(self.value)
-    attr_names = ('value', )
-
-class ConstantSimplified(Node):
-    __slots__ = ('value', 'level', '__weakref__')
-
-    def __init__(self, value, level=0):
-        self.value = value
-        self.level = level
-
-    def children(self):
-        nodelist = []
-        return tuple(nodelist)
-        
-    def __str__(self):
-        return str(self.value)
     attr_names = ('value', )
 
 
@@ -520,53 +488,6 @@ class Let(Node):
             #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
 
     attr_names = ()
-
-class LetSimlified(Node):
-    __slots__ = ('ident', 'assignedExpr', 'bodyExpr', 'level', '__weakref__')
-    
-    def __init__(self, ident, assignedExpr, bodyExpr, level = 0):
-        self.ident = ident                  # identifier
-        self.assignedExpr = assignedExpr    # expression
-        self.bodyExpr = bodyExpr            # body expression (the expression after 'in')
-        self.level = level
-
-    def children(self):
-        nodelist = []
-        nodelist.append(("ident",self.ident))
-        nodelist.append(("assignedExpr",self.assignedExpr))
-        nodelist.append(("bodyExpr:",self.bodyExpr))
-        return tuple(nodelist)
-
-    #def __str__(self):
-        #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
-    def __str__(self):
-        output = ""
-        #output = self.level * "    " + "Let " + str(self.ident) + " = " 
-        
-        #if isinstance(self.assignedExpr, TernaryOp):
-        
-        if isinstance(self.bodyExpr, list):
-            returnLst = "("
-            for exp in self.bodyExpr:
-                returnLst += str(exp) + ", "
-            
-            
-            
-            #output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n" 
-            output += (self.level + 1) * "    " + returnLst[:-2] + ")"
-            return output
-            
-            #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
-        else:
-            #output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n"  
-            output += str(self.bodyExpr)
-            return output
-            
-            
-            #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
-
-    attr_names = ()
-
 
 class Letrec(Node):
     __slots__ = ('args', 'ident', 'assignedExpr', 'bodyExpr', 'coord', '__weakref__')

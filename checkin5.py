@@ -140,7 +140,7 @@ input = f.read()
 print(input)
 f.close()
 
-print("\n\n---------- Output: ----------\n")
+print("\n\n----- Output: -----\n")
 print(visitor)
 
 # ------------------------ Checkin 3 starts here -------------------------------
@@ -306,184 +306,40 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     
     return None
 
-#
-#
-def minicToFunctionalSimplified(ast, blockItemLst, returnDict, level = 0):
-
-    if isinstance(ast, FileAST):
-        statement = None
-        
-        blockItems = ast.ext[0].body.block_items
-
-        statementCount = len(blockItems)
-        for i in range(statementCount):
-            statement = minicToFunctionalSimplified(blockItems[i], blockItems[i+1:], {}, level)
-            if statement is not None:
-                break
-        return statement
-    
-    
-    # filters and convert declaration statement to let ... = ... in ...
-    if isinstance(ast, Decl):   
-        if ast.init is not None:
-            init = minicToFunctionalSimplified(ast.init, [], returnDict, level + 1)
-            if not blockItemLst:
-                body = returnDict
-            else:
-                body = minicToFunctionalSimplified(blockItemLst[0], blockItemLst[1:], returnDict + [ast.name], level + 1)
-            
-            return my.Let(ast.name, init, body, level)
-        else:
-            if not blockItemLst:
-                return returnDict
-            else:
-                return minicToFunctionalSimplified(blockItemLst[0], blockItemLst[1:], returnDict, level)
-            
-    # convert assignment statement to let ... = ... in ...
-    if isinstance(ast, Assignment):
-        identifier = minicToFunctionalSimplified(ast.lvalue, [], returnDict)
-        #identifier = ast.lvalue.name  # get name of left hand side variable
-
-
-        # for future reference 
-        #if isinstance(ast.rvalue, Assignment):
-        #    rv = minicToFunctionalSimplified(ast.rvalue, [], [ast.rvalue.lvalue.name])
-        #else:
-        rv = minicToFunctionalSimplified(ast.rvalue, [], returnDict, level + 1)
-        if not blockItemLst:
-            body = returnDict
-        else:
-            returnDict[identifier.name] = rv
-            body = minicToFunctionalSimplified(blockItemLst[0], blockItemLst[1:], returnDict, level + 1)
-
-        return my.LetSimlified(identifier, rv, body, level)
-        
-    if isinstance(ast, ID):
-        return my.ID(ast.name, level)
-        
-    if isinstance(ast, Constant):
-        value = my.ConstantSimplified(ast.value, level)
-
-        return value
-
-    if isinstance(ast, Return):
-        return list(set(str(returnDict[key]) for key in returnDict))
-
-    if isinstance(ast, BinaryOp):
-            
-        left = minicToFunctionalSimplified(ast.left,[],returnDict)       
-        right = minicToFunctionalSimplified(ast.right,[],returnDict)
-        if str(left) in returnDict:
-            left = returnDict[str(left)]
-        if str(right) in returnDict:
-            right = returnDict[str(right)]        
-        return my.BinaryOpSimplified(ast.op,left,right, level)
-    
-    if isinstance(ast, TernaryOp):
-        iftrue = minicToFunctionalSimplified(ast.iftrue,[],returnDict, level + 1)
-        iffalse = minicToFunctionalSimplified(ast.iffalse,[],returnDict, level + 1)
-        cond = minicToFunctionalSimplified(ast.cond,[],returnDict)
-        return my.TernaryOp(cond, iftrue, iffalse, level)
-    
-    if isinstance(ast, FuncCall):
-        args = []
-        if ast.args is not None:
-            for arg in ast.args.exprs:
-                if isinstance(arg, Assignment):
-                    args += [minicToFunctionalSimplified(arg, [], [arg.lvalue.name])]
-                else:
-                    args += [minicToFunctionalSimplified(arg, [], returnDict)]
-        name = minicToFunctionalSimplified(ast.name, blockItemLst, returnDict)
-        return my.FuncCall(name, args, level)
-
-    if isinstance(ast, ArrayRef):
-        # for future reference      
-        #if isinstance(ast.subscript, Assignment):
-        #    subscript = minicToFunctionalSimplified(ast.subscript, [], [ast.subscript.lvalue.name])
-        #else:
-        name = minicToFunctionalSimplified(ast.name, [], returnDict)
-        
-        subscript = minicToFunctionalSimplified(ast.subscript, [], returnDict)
-        return my.ArrayRef(name, subscript, level);
-        
-    if isinstance(ast, UnaryOp):
-        # for future reference 
-        #if isinstance(ast.expr, Assignment):
-        #    expr = minicToFunctionalSimplified(ast.expr, [], [ast.expr.lvalue.name])
-        #else:
-        expr = minicToFunctionalSimplified(ast.expr, [], returnLst)
-        return my.UnaryOp(ast.op, expr, level)
-    
-    
-    if isinstance(ast, ExprList):
-        # convert something like a[1,2,b[1]] to functional programming
-        exprs = [minicToFunctionalSimplified(expr, [], returnDict) for expr in ast.exprs]
-        return my.ExprList(exprs)
-        
-    # ---------------- Checkin 4 starts here -----------------------------------
-    if isinstance(ast, If):
-        # get all the written variables
-        visitor1 = LHSPrinter()
-        visitor1.visit(ast.iftrue)
-        
-        # determine all written variables in if and else
-        if ast.iffalse is None:
-            allLhs = list(visitor1.get_LHSVar())
-            for e in allLhs:
-                returnDict[e] = ''
-        else:
-            visitor2 = LHSPrinter()
-            visitor2.visit(ast.iffalse)
-            
-            # add the variables together
-            allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
-            for e in allLhs:
-                returnDict[e] = ''            
-        iftrue = minicToFunctionalSimplified(ast.iftrue,[],returnDict, level + 2)  # returnDict) 
-        
-        if ast.iffalse is None:
-            iffalse = my.ReturnTuples(tuple(allLhs), level + 2)    # make the else statement when it doesn't exist
-        else:
-            # convert else statement to Let
-            iffalse = minicToFunctionalSimplified(ast.iffalse,[],returnDict, level + 2)  # returnDict)
-        cond = minicToFunctionalSimplified(ast.cond,{},[])   # returnDict)
-        
-        ternary = my.TernaryOp(cond, iftrue, iffalse, level + 1)
-        
-
-        if not blockItemLst:
-            body = my.ReturnTuples(returnDict, level + 1) #returnDict
-        else:
-            body = minicToFunctionalSimplified(blockItemLst[0], blockItemLst[1:], returnDict, level + 1)
-        
-        letStatement = my.Let(tuple(allLhs), ternary, body, level)
-        
-        return letStatement
-        #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
-    if isinstance(ast, Block):
-        statement = None
-        blockItems = ast.block_items + [Return([])]
-
-        statementCount = len(blockItems)
-        for i in range(statementCount):
-            statement = minicToFunctionalSimplified(blockItems[i], blockItems[i+1:], returnDict, level)
-            if statement is not None:
-                break
-        return statement
-    
-    
-    return None
-#
-#
-
 ast2 = transform(ast)
 
 functionalAST = minicToFunctional(ast2, [], [], 1)
 print(functionalAST)
 
-print("\n\n----- Simplified Output: -----\n")
+def simplifyAST(funcAST):
+    symbols = ['(',')',' ','+','-','*','/','|','&',""]
+    lines = str(funcAST).splitlines();
+    returnLst = lines[-1].strip().replace('(','').replace(')','').split(', ');
+    returnDict = dict(); # use a dictionary to keep track of variable value changes
+    for item in returnLst:
+        returnDict[item] = '' #initial value
+    for index,line in enumerate(lines):
+        if "Let" in line:
+            var = line.split()[1]
+            nextline = lines[index+1].strip()
+            for key in returnDict:
+                varindexes = [i for i in range(len(nextline)) if nextline.startswith(key, i)]
+                for index in varindexes:
+                    leftpart = nextline[:index]
+                    rightpart = nextline[index+len(key):]
+                    if leftpart[-1] in symbols and rightpart[0] in symbols:
+                        nextline = leftpart + returnDict[key] + rightpart
+            returnDict[var] = nextline
+    returnTupleStr = '('
+    for i in range(len(returnLst)):
+        if i == len(returnLst) - 1:
+            returnTupleStr += returnDict[returnLst[i]] + ')'
+        else:
+            returnTupleStr += returnDict[returnLst[i]] + ', '
+           
+    return returnTupleStr
 
-functionalASTSimplified = minicToFunctionalSimplified(ast2, [], {}, 1)
+#------------checkin 5
+print("\n\n--- Simplified Output: ---\n")
 print(visitor)
-print(functionalASTSimplified)
-
+print(simplifyAST(functionalAST))
