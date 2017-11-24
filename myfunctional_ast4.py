@@ -257,13 +257,13 @@ class FuncCall(Node):
     attr_names = ()
 
 class FuncDef(Node):
-    __slots__ = ('parameters', 'body', 'returns', 'coord', '__weakref__')
+    __slots__ = ('parameters', 'body', 'returns', 'level', '__weakref__')
 
-    def __init__(self, parameters, body, returns, coord=None):
+    def __init__(self, parameters, body, returns, level=0):
         self.parameters = parameters   # list of variables undeclared in block provided
         self.body = body               # body of function 
         self.returns = returns         # list of written variables
-        self.coord = coord
+        self.level = level
 
     def children(self):
         nodelist = []
@@ -271,6 +271,19 @@ class FuncDef(Node):
         if self.body is not None: nodelist.append(("body", self.body))
         if self.returns is not None: nodelist.append(("body", self.body))
         return tuple(nodelist)
+
+    def __str__(self):
+        parameterStr = ""
+        for parameter in self.parameters:
+            parameterStr += str(parameter) + ", "
+            
+        returnStr = ""
+        for returnVar in self.returns:
+            returnStr += str(returnVar) + ", "    
+        
+        output = "func block_function(" +  parameterStr[:-2] + ") return (" 
+        output += returnStr[:-2] + ") =\n" + str(self.body)
+        return output
 
     attr_names = ()
 
