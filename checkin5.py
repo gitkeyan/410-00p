@@ -317,17 +317,26 @@ def simplifyAST(funcAST):
     returnLst = lines[-1].strip().replace('(','').replace(')','').split(', ');
     returnDict = dict(); # use a dictionary to keep track of variable value changes
     for item in returnLst:
-        returnDict[item] = '' #initial value
+        returnDict[item] = item #initial value
     for index,line in enumerate(lines):
         if "Let" in line:
             var = line.split()[1]
             nextline = lines[index+1].strip()
             for key in returnDict:
                 varindexes = [i for i in range(len(nextline)) if nextline.startswith(key, i)]
+                
                 for index in varindexes:
                     leftpart = nextline[:index]
+                    if leftpart == '':
+                        leftpartLastInd = ""
+                    else:
+                        leftpartLastInd = leftpart[-1]
                     rightpart = nextline[index+len(key):]
-                    if leftpart[-1] in symbols and rightpart[0] in symbols:
+                    if leftpart == '':
+                        rightpartFirstInd = ""
+                    else:
+                        rightpartFirstInd = leftpart[-1]                    
+                    if leftpartLastInd in symbols and rightpartFirstInd in symbols:
                         nextline = leftpart + returnDict[key] + rightpart
             returnDict[var] = nextline
     returnTupleStr = '('
