@@ -140,7 +140,6 @@ print(input)
 f.close()
 
 print("\n\n----- Output: -----\n")
-print(visitor)
 
 # ------------------------ Checkin 3 starts here -------------------------------
 
@@ -154,7 +153,6 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
 
     if isinstance(ast, FileAST):
         statement = None
-        
         blockItems = ast.ext[0].body.block_items
 
         statementCount = len(blockItems)
@@ -162,7 +160,13 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
             statement = minicToFunctional(blockItems[i], blockItems[i+1:], [], level)
             if statement is not None:
                 break
-        return statement
+                  
+        visitorF = LHSPrinter()
+        visitorF.visit(ast)
+        nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
+        lhsVar = [my.ID(var) for var in visitorF.get_LHSVar()]
+        
+        return my.FuncDef(nonDeclaredVars, statement, lhsVar)
     
     
     # filters and convert declaration statement to let ... = ... in ...
