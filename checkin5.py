@@ -3,7 +3,6 @@
 
 from pycparser import parse_file
 from pycparser.c_ast import *
-sys.argv += ["project3inputs/lalala"]
 sys.path.extend(['.', '..'])
 
 from pyminicMaster.minic.minic_ast import *
@@ -316,10 +315,11 @@ def simplifyAST(funcAST):
     lines = str(funcAST).splitlines();
     returnLst = lines[-1].strip().replace('(','').replace(')','').split(', ');
     returnDict = dict(); # use a dictionary to keep track of variable value changes
+    returnStr = ""
     for item in returnLst:
         returnDict[item] = item #initial value
     for index,line in enumerate(lines):
-        if "Let" in line:
+        if "Let" in line and "(" not in line:
             var = line.split()[1]
             nextline = lines[index+1].strip()
             for key in returnDict:
@@ -345,8 +345,57 @@ def simplifyAST(funcAST):
             returnTupleStr += returnDict[returnLst[i]] + ')'
         else:
             returnTupleStr += returnDict[returnLst[i]] + ', '
-           
-    return returnTupleStr
+    hasIf = False
+    for line in lines:
+        if "if" in line:
+            hasIf = True
+    if not hasIf:
+        return returnTupleStr
+    else:
+        for index,line in enumerate(lines):
+            if "Let (" in line:
+                returnStr += line+ "\n"
+            elif "if (" in line:
+                returnStr += line + "\n"
+            elif line.strip() == "then":
+                returnStr += line+ "\n"
+            elif line.strip() == "else":
+                returnStr += line+ "\n"
+            elif "Let" in line and "(" not in line:
+                var = line.split()[1]
+                nextline = lines[index+1].strip()
+                for key in returnDict:
+                    varindexes = [i for i in range(len(nextline)) if nextline.startswith(key, i)]
+                    
+                    for index in varindexes:
+                        leftpart = nextline[:index]
+                        if leftpart == '':
+                            leftpartLastInd = ""
+                        else:
+                            leftpartLastInd = leftpart[-1]
+                        rightpart = nextline[index+len(key):]
+                        if leftpart == '':
+                            rightpartFirstInd = ""
+                        else:
+                            rightpartFirstInd = leftpart[-1]                    
+                        if leftpartLastInd in symbols and rightpartFirstInd in symbols:
+                            nextline = leftpart + returnDict[key] + rightpart
+                returnDict[var] = nextline
+                
+        returnStr += "    in\n"
+        for index,line in enumerate(lines):
+            if "Let (" in line:
+                varstuple = line.replace("Let","").replace("=","").rstrip()
+                returnStr += "\t" + varstuple
+    returnTupleStr = '('
+    for i in range(len(returnLst)):
+        if i == len(returnLst) - 1:
+            returnTupleStr += returnDict[returnLst[i]] + ')'
+        else:
+            returnTupleStr += returnDict[returnLst[i]] + ', ' 
+    returnStr = returnStr[:returnStr.find("else")] + "     " + returnTupleStr + "\n\t" + returnStr[returnStr.find("else"):]
+    returnStr = returnStr[:returnStr.find("in")] +"    " +varstuple + "\n\t" + returnStr[returnStr.find("in"):]
+    return returnStr
 
 #------------checkin 5
 print("\n\n--- Simplified Output: ---\n")
