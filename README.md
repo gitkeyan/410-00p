@@ -45,3 +45,7 @@ Checkin # 3:
         - checkin4_input1<br />
         - checkin4_input2<br />
         - checkin4_input3<br />
+        
+  Checkin # 5:<br />
+   to run, do<br />
+   python checkin5.py project3inputs/checkin5_input1
