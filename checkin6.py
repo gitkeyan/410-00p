@@ -316,14 +316,17 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
         lhsVar = tuple([var for var in visitorF.get_LHSVar()])
         
-        assignedStatements = minicToFunctional(ast.stmt, [], [], level + 2)
-        recursiveCall = my.LetrecCall('loop0', lhsVar, level + 2)        
-        recursiveLet = my.Let(lhsVar, assignedStatements, recursiveCall, level + 1)        
-
+        assignedStatements = minicToFunctional(ast.stmt, [], [], level + 3)
+    
+        recursiveCall = my.LetrecCall('loop0', lhsVar, level + 3)        
+        recursiveLet = my.Let(lhsVar, assignedStatements, recursiveCall, level + 2)
+        
+        cond = minicToFunctional(ast.cond, [], [])
+        ifStatement = my.TernaryOp(cond, recursiveLet, lhsVar, level + 1)        
 
         newReturnLst = returnLst + list(lhsVar)
         body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
-        statement = my.Letrec('loop0', lhsVar, recursiveLet, body, level)
+        statement = my.Letrec('loop0', lhsVar, ifStatement, body, level)
         return statement
     
     if isinstance(ast, DoWhile):
@@ -339,7 +342,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     return None
 
 
-inputFile = r'./project3inputs/checkin6_input1' #sys.argv[1]
+inputFile = r'./project3inputs/checkin6_input2' #sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
 
 ast = parse_file(dummyName)

@@ -392,6 +392,9 @@ class TernaryOp(Node):
         self.iftrue = iftrue
         self.iffalse = iffalse
         self.level = level
+        
+        if isinstance(iffalse, tuple) or isinstance(iffalse, list):
+            self.iffalse = ReturnTuples(iffalse, level + 1)
 
     def children(self):
         nodelist = []
@@ -447,11 +450,11 @@ class ReturnTuples(Node):
     def __str__(self):
         output = ""
         if isinstance(self.exprs, tuple):
-            output = "("
+            output = ""
             for i in self.exprs:
                 output += str(i) + ", "
                 
-            output = output[:-2] + ")"
+            output = "(" + output[:-2] + ")"
         return self.level * "    " + output
     attr_names = ()
 
