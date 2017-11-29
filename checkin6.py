@@ -326,6 +326,16 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         statement = my.Letrec('loop0', lhsVar, recursiveLet, body, level)
         return statement
     
+    if isinstance(ast, DoWhile):
+        #print(ast.__slots__)
+        # convert to statments + while with statements
+        
+        minicWhile = While(ast.cond, ast.stmt)
+        newBlockItemLst = ast.stmt.block_items + [minicWhile] + blockItemLst
+        return minicToFunctional(newBlockItemLst[0], newBlockItemLst[1:], returnLst, level)
+        
+        #newBlockItems = blockItemLst[1:]
+    
     return None
 
 

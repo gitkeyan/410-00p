@@ -487,7 +487,7 @@ class Let(Node):
             for ident in self.ident:
                 identLst += str(ident) + ", "
             identLst = identLst[:-2]
-            output = self.level * "    " + "Let (" + identLst + ")"
+            output = self.level * "    " + "Let (" + identLst + ")" + " = "
         else:
             output = self.level * "    " + "Let " + str(self.ident) + " = " 
         
