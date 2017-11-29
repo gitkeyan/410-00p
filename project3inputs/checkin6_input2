@@ -1,0 +1,6 @@
+do {
+	sum = sum + a[i];
+	i++;
+}while(i < n);
+
+k = 1;
