@@ -1,0 +1,12 @@
+
+while (i < n) {
+	sum = sum + a[i];
+	i++;
+   
+	while(j < m) {
+		j++;
+	}
+   
+}
+k = 1;
+
