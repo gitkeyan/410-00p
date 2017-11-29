@@ -1,8 +1,3 @@
-import sys, os
-path = r'C:\Users\Meng\Desktop\Checkin6\410-00p'
-os.chdir(path)
-
-
 # example of how to run this script
 # python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
 
@@ -330,7 +325,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     return None
 
 
-inputFile = r'./project3inputs/checkin6_input3' #sys.argv[1]
+inputFile = sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
 
 ast = parse_file(dummyName)
