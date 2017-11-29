@@ -485,10 +485,13 @@ class Let(Node):
             for exp in self.bodyExpr:
                 returnLst += str(exp) + ", "
             
-            
+            if returnLst[:-2] == "":
+                returnLst = "()"
+            else:
+                returnLst = returnLst[:-2] + ")"
             
             output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n" 
-            output += (self.level + 1) * "    " + returnLst[:-2] + ")"
+            output += (self.level + 1) * "    " + returnLst
             return output
             
             #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
