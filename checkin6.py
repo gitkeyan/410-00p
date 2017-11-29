@@ -288,27 +288,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return statement
     
     
-    # ------------------------ Checkin 6 starts here ---------------------------
-    if isinstance(ast, For):
-        block_items = [ast.stmt]
-        
-            
-        if ast.cond is not None:
-            pass
-            #statement = my.TernaryOp(ast.cond, ast.stmt, returnLst, level)
-            
-        if ast.next is not None:
-            print(ast.next)
-            block_items[0].block_items = block_items[0].block_items + [ast.next] 
-            
-
-        if ast.init is not None:
-            statement = minicToFunctional(ast.init, block_items, returnLst, level)
-
-        #statement = minicToFunctional(ast.stmt, [], returnLst, level + 1)
-
-        return statement
-        
+    # ------------------------ Checkin 6 starts here ---------------------------        
     if isinstance(ast, While):
 
         visitorF = LHSPrinter()
@@ -330,7 +310,6 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return statement
     
     if isinstance(ast, DoWhile):
-        #print(ast.__slots__)
         # convert to statments + while with statements
         
         minicWhile = While(ast.cond, ast.stmt)
@@ -339,10 +318,19 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         
         #newBlockItems = blockItemLst[1:]
     
+    if isinstance(ast, For):
+        # convert to init + while with (statements + next)
+        
+        newStmt = Block(ast.stmt.block_items + [ast.next])
+        minicWhile = While(ast.cond, newStmt)
+        newBlockItemLst = [ast.init, minicWhile] + blockItemLst
+        
+        return minicToFunctional(newBlockItemLst[0], newBlockItemLst[1:], returnLst, level)
+    
     return None
 
 
-inputFile = r'./project3inputs/checkin6_input2' #sys.argv[1]
+inputFile = r'./project3inputs/checkin6_input3' #sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
 
 ast = parse_file(dummyName)
