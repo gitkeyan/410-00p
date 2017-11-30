@@ -406,12 +406,12 @@ class TernaryOp(Node):
     def __str__(self):
         output = self.level * "    " + "if " + str(self.cond) + "\n"
         output += self.level * "    " + "then\n"
-        output +=  str(self.iftrue) + "\n"    # (self.level + 1) * "    " +
+        output +=  str(self.iftrue) + "\n"
         output += self.level * "    " + "else" + "\n"
-        output += str(self.iffalse)   # (self.level + 1) * "    " + 
+        output += str(self.iffalse)
         
         return output
-        #return "if " + str(self.cond) + " then " + str(self.iftrue) + " else " + str(self.iffalse)
+
     
     attr_names = ()
 
@@ -481,8 +481,7 @@ class Let(Node):
         nodelist.append(("bodyExpr:",self.bodyExpr))
         return tuple(nodelist)
 
-    #def __str__(self):
-        #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + str(self.bodyExpr)
+
     def __str__(self):
         
         if isinstance(self.ident, list) or isinstance(self.ident, tuple):
@@ -495,7 +494,11 @@ class Let(Node):
             output = self.level * "    " + "Let " + str(self.ident) + " = " 
         
         #if isinstance(self.assignedExpr, TernaryOp):
-        output += "\n"
+        assignedStr = str(self.assignedExpr)
+        if len(assignedStr.split('\n')) > 1:
+            output += "\n" + assignedStr
+        else:
+            output += assignedStr.strip()
         
         if isinstance(self.bodyExpr, list):
             returnLst = "("
@@ -507,14 +510,18 @@ class Let(Node):
             else:
                 returnLst = returnLst[:-2] + ")"
             
-            output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n" 
-            output += (self.level + 1) * "    " + returnLst
+            output += "\n" + self.level * "    " + "in " + returnLst 
             return output
             
-            #return "Let " + str(self.ident) + " = " + str(self.assignedExpr) + "\nin\n" + returnLst[:-2] + ")"
         else:
-            output += str(self.assignedExpr) + "\n" + self.level * "    " + "in\n"  
-            output += str(self.bodyExpr)
+            output += "\n" + self.level * "    " + "in "  
+            
+            bodyExprStr = str(self.bodyExpr)
+            if len(bodyExprStr.split('\n')) > 1:
+                output += "\n" + bodyExprStr
+            else:
+                output += bodyExprStr.strip()
+
             return output
             
             
