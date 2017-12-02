@@ -49,3 +49,11 @@ Checkin # 3:
   Checkin # 5:<br />
    to run, do<br />
    python checkin5.py project3inputs/checkin5_input1
+   
+  Checkin # 6:<br />
+    to run code for checkin 6, do<br />
+    python checkin6.py project3inputs/checkin6_input1<br /><br />
+    we have added the following input under project3input for testing purposes:<br />
+        - checkin6_input1<br />
+        - checkin6_input2<br />
+        - checkin6_input3<br />
