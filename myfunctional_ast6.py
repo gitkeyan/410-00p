@@ -449,7 +449,7 @@ class ReturnTuples(Node):
 
     def __str__(self):
         output = ""
-        if isinstance(self.exprs, tuple):
+        if isinstance(self.exprs, tuple) or isinstance(self.exprs, list):
             if len(self.exprs) > 1:
                 output = ""
                 for i in self.exprs:
