@@ -450,11 +450,14 @@ class ReturnTuples(Node):
     def __str__(self):
         output = ""
         if isinstance(self.exprs, tuple):
-            output = ""
-            for i in self.exprs:
-                output += str(i) + ", "
-                
-            output = "(" + output[:-2] + ")"
+            if len(self.exprs) > 1:
+                output = ""
+                for i in self.exprs:
+                    output += str(i) + ", "
+                    
+                output = "(" + output[:-2] + ")"
+            else:
+                output = self.exprs[0]
         return self.level * "    " + output
     attr_names = ()
 
@@ -501,16 +504,19 @@ class Let(Node):
             output += assignedStr.strip()
         
         if isinstance(self.bodyExpr, list):
-            returnLst = "("
-            for exp in self.bodyExpr:
-                returnLst += str(exp) + ", "
-            
-            if returnLst[:-2] == "":
-                returnLst = "()"
+            if len(self.bodyExpr) > 1:
+                returnLst = "("
+                for exp in self.bodyExpr:
+                    returnLst += str(exp) + ", "
+                
+                if returnLst[:-2] == "":
+                    returnLst = "()"
+                else:
+                    returnLst = returnLst[:-2] + ")"
+                
+                output += "\n" + self.level * "    " + "in " + returnLst 
             else:
-                returnLst = returnLst[:-2] + ")"
-            
-            output += "\n" + self.level * "    " + "in " + returnLst 
+                output += "\n" + self.level * "    " + "in " + self.bodyExpr[0] 
             return output
             
         else:
@@ -558,8 +564,11 @@ class Letrec(Node):
         
         output = self.level * "    " + "let rec " + str(self.ident) + " " + argStr + " = \n"
         output += str(self.assignedExpr) + "\n"
-        output += self.level * "    " + "in\n"
-        output += str(self.bodyExpr) 
+        output += self.level * "    " + "in "
+        if isinstance(self.bodyExpr, ReturnTuples):
+            output += str(self.bodyExpr).strip()
+        else:
+            output += "\n" + str(self.bodyExpr) 
         return output
 
 class LetrecCall(Node):

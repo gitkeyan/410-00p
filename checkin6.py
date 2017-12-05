@@ -1,3 +1,7 @@
+import sys, os
+path = r'C:\Users\Meng\Desktop\ver1\410-00p'
+os.chdir(path)
+
 # example of how to run this script
 # python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
 
@@ -146,8 +150,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         visitorF = LHSPrinter()
         visitorF.visit(ast)
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
-        lhsVar = [my.ID(var) for var in visitorF.get_LHSVar()]
-        
+        lhsVar = [var for var in visitorF.get_LHSVar()]
         return my.FuncDef(nonDeclaredVars, statement, lhsVar)
     
     
@@ -176,7 +179,11 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         if not blockItemLst:
             body = returnLst
         else:
-            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [identifier], level + 1)
+            var = identifier
+            while isinstance(var, my.ArrayRef):
+                var = var.name
+                
+            body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + [var], level + 1)
         return my.Let(identifier, rv, body, level)
         
     if isinstance(ast, ID):
@@ -285,7 +292,6 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     
     # ------------------------ Checkin 6 starts here ---------------------------        
     if isinstance(ast, While):
-
         visitorF = LHSPrinter()
         visitorF.visit(ast)
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
@@ -311,7 +317,6 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         newBlockItemLst = ast.stmt.block_items + [minicWhile] + blockItemLst
         return minicToFunctional(newBlockItemLst[0], newBlockItemLst[1:], returnLst, level)
         
-        #newBlockItems = blockItemLst[1:]
     
     if isinstance(ast, For):
         # convert to init + while with (statements + next)
@@ -325,7 +330,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     return None
 
 
-inputFile = sys.argv[1]
+inputFile = r'./project3inputs/testing'#r'./project3inputs/p3_input6' #sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
 
 ast = parse_file(dummyName)
