@@ -476,7 +476,8 @@ class Let(Node):
                 self.ident = self.ident[0]
             else:
                 self.ident = list(self.ident)
-
+        if isinstance(self.bodyExpr, list):
+            self.bodyExpr = ReturnTuples(tuple(bodyExpr), level + 1)
     def children(self):
         nodelist = []
         nodelist.append(("ident",self.ident))
