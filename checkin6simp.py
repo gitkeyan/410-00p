@@ -369,6 +369,7 @@ def simplify(ast):
         return newAst
         
     if isinstance(newAst, my.Letrec):
+        newAst.assignedExpr = simplify(newAst.assignedExpr)
         newAst.bodyExpr = simplify(newAst.bodyExpr)
     
     return newAst
