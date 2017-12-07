@@ -5,6 +5,10 @@ The dummy file that stores this C function is then generated under the same path
 For this project we uses pycpaser, and minic to help determine the corresponding AST for the c code block.
 With AST of the C code, we convert the C code's AST into its functional programming equivalent AST and output
 the functional programming language version of the C code.
+
+This code first print the C function
+Then print the functional programming equivalent of the C code
+Then print the simplified functional programming equivalent of the C code 
 '''
 # example of how to run this script
 # python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
