@@ -21,7 +21,7 @@ from pyminicMaster.minic.minic_ast import *
 from pyminicMaster.c_ast_to_minic import * 
 import os
 
-import myfunctional_ast6 as my
+import myfunctional_ast as my
 
 
 class LHSPrinter(NodeVisitor):
