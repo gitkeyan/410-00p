@@ -1,3 +1,11 @@
+'''
+This program reads a C code block (populated with assignment statements) stored in the input file provided
+and wraps the C code block inside a C function. 
+The dummy file that stores this C function is then generated under the same path as the input file.
+For this project we uses pycpaser, and minic to help determine the corresponding AST for the c code block.
+With AST of the C code, we convert the C code's AST into its functional programming equivalent AST and output
+the functional programming language version of the C code.
+'''
 # example of how to run this script
 # python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
 
