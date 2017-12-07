@@ -126,6 +126,7 @@ class ArrayRef(Node):
 
     def __str__(self):
         return self.level * "    " + str(self.name) +"["+ str(self.subscript) + "]"
+        
     attr_names = ()
 
 
@@ -140,6 +141,8 @@ class BinaryOp(Node):
 
     def __str__(self):
         return self.level * "    " + "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
+        
+    
     attr_names = ('op', )
 
 
@@ -232,25 +235,33 @@ class ID(Node):
 
 
 class TernaryOp(Node):
-    __slots__ = ('cond', 'iftrue', 'iffalse', 'level', '__weakref__')
+    __slots__ = ('cond', 'iftrue', 'iffalse', 'level', 'isExpression', '__weakref__')
 
-    def __init__(self, cond, iftrue, iffalse, level = 0):
+    def __init__(self, cond, iftrue, iffalse, level = 0, isExpression = False):
         self.cond = cond            # if condition
         self.iftrue = iftrue        # statements to exectue if cond is true
         self.iffalse = iffalse      # statements to execute if cond is false
         self.level = level
+        self.isExpression = isExpression   
+        # isExpression = True means the expression is ternary
+        # isExpression = False means the exprssion is if statment 
         
         # wrap the list of variables returned as a ReturnTuples object
         if isinstance(iffalse, tuple) or isinstance(iffalse, list):
             self.iffalse = ReturnTuples(iffalse, level + 1)
     
     def __str__(self):
-        output = self.level * "    " + "if " + str(self.cond) + "\n"
-        output += self.level * "    " + "then\n"
-        output +=  str(self.iftrue) + "\n"
-        output += self.level * "    " + "else" + "\n"
-        output += str(self.iffalse)
-        
+        if not self.isExpression:
+            output = self.level * "    " + "if " + str(self.cond) + "\n"
+            output += self.level * "    " + "then\n"
+            output +=  str(self.iftrue) + "\n"
+            output += self.level * "    " + "else" + "\n"
+            output += str(self.iffalse)
+        else:
+            output = self.level * "    " +"(" +  "if " + str(self.cond)
+            output += " then " + str(self.iftrue).strip()
+            output += " else " + str(self.iffalse).strip() + ")"
+
         return output
 
     
@@ -406,7 +417,9 @@ class Letrec(Node):
         output = self.level * "    " + "let rec " + str(self.ident) + " " + argStr + " = \n"
         output += str(self.assignedExpr) + "\n"
         output += self.level * "    " + "in "
-        if isinstance(self.bodyExpr, ReturnTuples):
+        
+        lineCount = len(str(self.bodyExpr).split('\n'))
+        if isinstance(self.bodyExpr, ReturnTuples) or (lineCount <= 1):
             output += str(self.bodyExpr).strip()
         else:
             output += "\n" + str(self.bodyExpr) 
