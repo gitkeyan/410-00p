@@ -1,5 +1,5 @@
 # example of how to run this script
-# python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
+# python checkin6simp.py /Users/abc/Desktop/project3inputs/checkin6_input1
 
 from pycparser import parse_file
 from pycparser.c_ast import *
