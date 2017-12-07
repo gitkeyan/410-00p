@@ -9,7 +9,8 @@ from pyminicMaster.minic.minic_ast import *
 from pyminicMaster.c_ast_to_minic import * 
 import os
 
-import myfunctional_ast6simp as my
+import myfunctional_ast6 as my
+
 
 class LHSPrinter(NodeVisitor):
     def __init__(self):
@@ -25,9 +26,10 @@ class LHSPrinter(NodeVisitor):
         # to find all non-declared variables
         nonDeclaredVars = self.varLst.difference(self.declaredVar)
         
-        #return "func block_function" + str(tuple(nonDeclaredVars)) + " return " + str(list(self.lhsVar))
         return 'func block_function' +'(' + ','.join(map(str, nonDeclaredVars)) + ')' + " return " + '[' + ','.join(map(str, self.lhsVar)) + ']'
 
+
+    
     def visit_Decl(self, decl):
         if decl.init is not None:
             self.lhsVar.add(decl.name)
@@ -71,11 +73,15 @@ class LHSPrinter(NodeVisitor):
         self.visit(binaryOp.right)
         
     def visit_ID(self, id, getArrayName = False):
-        if getArrayName:
+        # add variable to the list of all variables
+        if getArrayName:  
+            # add variable to the set of modified variables
+            # if other statements says it is on the left hand side
             self.lhsVar.add(id.name)
         self.varLst.add(id.name)
         
     def visit_FuncCall(self, funcCall):
+        # visit each of the argument in the function
         if funcCall.args is not None:
             for exprs, child in funcCall.args.children():
                 self.visit(child)
@@ -101,7 +107,7 @@ class LHSPrinter(NodeVisitor):
     def get_DeclaredVar(self):
         return self.declaredVar
                 
-# wrap raw C code into a simple 
+# wrap raw C code into a simple c function
 def makeDummyCFile(file):
     
     # read file
@@ -124,13 +130,11 @@ def makeDummyCFile(file):
     return str(fileName)
 
 
-
 # ------------------------ Checkin 3 starts here -------------------------------
 
 
 # blockItemLst: list of statements to be read in the block
 # returnLst:    list of availiable bindings
-
 def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
 
     if isinstance(ast, FileAST):
@@ -147,6 +151,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         visitorF.visit(ast)
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
         lhsVar = [var for var in visitorF.get_LHSVar()]
+        
         return my.FuncDef(nonDeclaredVars, statement, lhsVar)
     
     
@@ -183,26 +188,36 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return my.Let(identifier, rv, body, level)
         
     if isinstance(ast, ID):
+        # structure used to store name of variable
         return my.ID(ast.name, level)
         
     if isinstance(ast, Constant):
+        # structure used to store int, string, boolean value of a variable
         return my.Constant(ast.value, level)
 
     if isinstance(ast, Return):
+        # C code's block end here.
+        # return the list of modified variables in the code block
         return list(set(str(element) for element in returnLst))
 
     if isinstance(ast, BinaryOp):
+        # convert a binary expression to functional programming
         left = minicToFunctional(ast.left,[],returnLst)
         right = minicToFunctional(ast.right,[],returnLst)
         return my.BinaryOp(ast.op,left,right, level)
     
     if isinstance(ast, TernaryOp):
+        # compute the functional programming equivalent for the expression on the
+        # left and the expression on the right, and the expression for the condition for ternary expressions and if statements
+        
         iftrue = minicToFunctional(ast.iftrue,[],returnLst, level + 1)
         iffalse = minicToFunctional(ast.iffalse,[],returnLst, level + 1)
         cond = minicToFunctional(ast.cond,[],returnLst)
         return my.TernaryOp(cond, iftrue, iffalse, level)
     
     if isinstance(ast, FuncCall):
+        # get the functional programming equivalent expression for each argument
+        # and build the function call expression in terms of myfunctional_ast
         args = []
         if ast.args is not None:
             for arg in ast.args.exprs:
@@ -214,20 +229,14 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return my.FuncCall(name, args, level)
 
     if isinstance(ast, ArrayRef):
-        # for future reference      
-        #if isinstance(ast.subscript, Assignment):
-        #    subscript = minicToFunctional(ast.subscript, [], [ast.subscript.lvalue.name])
-        #else:
+        # convert the variable and its subscripts to functional programming format
+        # so they can be printed
         name = minicToFunctional(ast.name, [], returnLst)
         
         subscript = minicToFunctional(ast.subscript, [], returnLst)
         return my.ArrayRef(name, subscript, level);
         
     if isinstance(ast, UnaryOp):
-        # for future reference 
-        #if isinstance(ast.expr, Assignment):
-        #    expr = minicToFunctional(ast.expr, [], [ast.expr.lvalue.name])
-        #else:
         expr = minicToFunctional(ast.expr, [], returnLst)
         return my.UnaryOp(ast.op, expr, level)
     
@@ -253,28 +262,34 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
             # add the variables together
             allLhs = list( visitor1.get_LHSVar().union(visitor2.get_LHSVar()) )
         
-        iftrue = minicToFunctional(ast.iftrue,[],allLhs, level + 2)  # returnLst) 
+        iftrue = minicToFunctional(ast.iftrue,[],allLhs, level + 2) 
         
         if ast.iffalse is None:
             iffalse = my.ReturnTuples(tuple(allLhs), level + 2)    # make the else statement when it doesn't exist
         else:
             # convert else statement to Let
-            iffalse = minicToFunctional(ast.iffalse,[],allLhs, level + 2)  # returnLst)
-        cond = minicToFunctional(ast.cond,[],[])   # returnLst)
+            iffalse = minicToFunctional(ast.iffalse,[],allLhs, level + 2)  
+            
+        cond = minicToFunctional(ast.cond,[],[])
         
         ternary = my.TernaryOp(cond, iftrue, iffalse, level + 1)
         
 
         if not blockItemLst:
-            body = my.ReturnTuples(returnLst, level + 1) #returnLst
+            body = my.ReturnTuples(returnLst, level + 1)
         else:
             body = minicToFunctional(blockItemLst[0], blockItemLst[1:], returnLst + allLhs, level + 1)
         
         letStatement = my.Let(tuple(allLhs), ternary, body, level)
         
         return letStatement
-        #return my.TernaryOp(cond, ast.iftrue.block_items[0].lvalue.name, iffalse)
+
     if isinstance(ast, Block):
+        # handles compound statements for iftrue and iffalse
+        # iterate through each statement until the first none empty line come up
+        # Convert the build the let bindings for that statement and the statements
+        # that follows
+        
         statement = None
         blockItems = ast.block_items + [Return([])]
 
@@ -288,26 +303,33 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
     
     # ------------------------ Checkin 6 starts here ---------------------------        
     if isinstance(ast, While):
+        # Find all the modified variables in the loop using the visitor 
+        # implmented above
         visitorF = LHSPrinter()
         visitorF.visit(ast)
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
         lhsVar = tuple([var for var in visitorF.get_LHSVar()])
         
+        # translate the statements in the loop to functional programming
         assignedStatements = minicToFunctional(ast.stmt, [], [], level + 3)
-    
-        recursiveCall = my.LetrecCall('loop0', lhsVar, level + 3)        
+        
+        # make the recusive call for let rec
+        recursiveCall = my.LetrecCall('loop', lhsVar, level + 3)     
+        
+        # takes the statements in the loop as assigned expression and calls on
+        # the let rec function in the body   
         recursiveLet = my.Let(lhsVar, assignedStatements, recursiveCall, level + 2)
         
         cond = minicToFunctional(ast.cond, [], [])
         ifStatement = my.TernaryOp(cond, recursiveLet, lhsVar, level + 1)        
 
-        newReturnLst = returnLst + list(lhsVar)
+        newReturnLst = returnLst + list(lhsVar) 
         body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
-        statement = my.Letrec('loop0', lhsVar, ifStatement, body, level)
+        statement = my.Letrec('loop', lhsVar, ifStatement, body, level)
         return statement
     
     if isinstance(ast, DoWhile):
-        # convert to statments + while with statements
+        # convert Dowhile to statments + while with statements
         
         minicWhile = While(ast.cond, ast.stmt)
         newBlockItemLst = ast.stmt.block_items + [minicWhile] + blockItemLst
@@ -315,7 +337,7 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         
     
     if isinstance(ast, For):
-        # convert to init + while with (statements + next)
+        # convert for loop to init + while with (statements + next)
         
         newStmt = Block(ast.stmt.block_items + [ast.next])
         minicWhile = While(ast.cond, newStmt)
@@ -328,15 +350,28 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
 
 
 import copy
+
+#------------------------ Let binding simplification algorithm -----------------
+'''
+Simplification rule:
+If the variable in let is a constant, attempt to simplify it by changing each
+place where the variable occured on the right hand side with its value.
+If the variable is modified in a loop (let rec), then undo the simplification
+for this variable.
+
+Then do the simplification for the body expression as well.
+'''
+
 def simplify(ast):
     newAst = copy.deepcopy(ast)
     
     if isinstance(newAst, my.FuncDef):
+        # prototype don't need simplification, but its body does
         newAst.body = simplify(newAst.body)
         return newAst
         
     if isinstance(newAst, my.Let):        
-        
+        # simplify variables that are assigned to constant
         if isinstance(newAst.ident, my.ID) and isinstance(newAst.assignedExpr, my.Constant):
             
             varName = str(newAst.ident).strip()
@@ -344,7 +379,8 @@ def simplify(ast):
             val = newAst.assignedExpr
             newAst = replaceVar(newAst.bodyExpr, varName, val)
             
-            # if variable should not be modified
+            # if variable should not be modified, make a copy of the original
+            # ast again and simplify body expression
             if newAst is None:
                 newAst = copy.deepcopy(ast)
                 newAst.bodyExpr = simplify(newAst.bodyExpr)
@@ -352,10 +388,13 @@ def simplify(ast):
                 newAst = simplify(newAst);
             return newAst
             
+        # simplify body expression for array ref
         if isinstance(newAst.ident, my.ArrayRef):  
             newAst.bodyExpr = simplify(newAst.bodyExpr)
             return newAst
 
+        # ast is a let made for if statement
+        # simplify both assgined Expression as well as the body expression
         newAst.assignedExpr = simplify(newAst.assignedExpr)
         newAst.bodyExpr = simplify(newAst.bodyExpr)
         
@@ -369,10 +408,30 @@ def simplify(ast):
         return newAst
         
     if isinstance(newAst, my.Letrec):
+        # simplify both the assgined Expression as well as the body expression
         newAst.assignedExpr = simplify(newAst.assignedExpr)
         newAst.bodyExpr = simplify(newAst.bodyExpr)
     
     return newAst
+
+#------------------------ variable replacement algorithm -----------------------
+'''
+Replace variable with name of varName with its value val instead.
+This function is used to help eliminate variables assigned to constants
+
+Replacement rule:
+Replace every variable with same string name as varName with val
+Recursively calls on itself to also do the replacement in the let's body expression
+
+If the identifier to a let binding have the same name as varName, then replacement
+ends after variable is replaced on the right-hand side.
+
+If the variable to be replace is modified in a let rec, return None.
+If replacement results in a None to be returned, return None immediately.
+
+The AST or None returned helps determine if a simplification step can be taken
+
+'''
 
 def replaceVar(ast, varName, val):
     
@@ -415,7 +474,7 @@ def replaceVar(ast, varName, val):
                 
             return newAst
         
-                
+        # Do replace of variable for if statements        
         if isinstance(newAst.ident, list) or isinstance(newAst.ident, tuple):
             newAst.assignedExpr = replaceVar(newAst.assignedExpr, varName, val)
         
@@ -434,6 +493,8 @@ def replaceVar(ast, varName, val):
 
         
     if isinstance(ast, my.ReturnTuples):
+        # Replace the variable named as varName with the value val in the return
+        # tuple
         newAst = copy.deepcopy(ast)
         
         if isinstance(newAst.exprs, tuple):
@@ -447,6 +508,7 @@ def replaceVar(ast, varName, val):
         
         
     if isinstance(ast, my.BinaryOp):
+        # Do replacement for the expression on the left and the expression on the right
         newAst = copy.deepcopy(ast)
         
         newAst.left = replaceVar(newAst.left, varName, val)
@@ -461,21 +523,23 @@ def replaceVar(ast, varName, val):
         return newAst
         
     if isinstance(ast, my.TernaryOp):
+        # Do replacement in the condition, iftrue, and iffalse
         newAst = copy.deepcopy(ast)
         newAst.cond = replaceVar(newAst.cond, varName, val)
         newAst.iftrue = replaceVar(newAst.iftrue, varName, val)
         
-        if newAst.iftrue is None:
+        if newAst.iftrue is None:  # variable to be replaced is modified in let rec
             return None
         
         newAst.iffalse = replaceVar(newAst.iffalse, varName, val)
         
-        if newAst.iffalse is None:
+        if newAst.iffalse is None: # variable to be replaced is modified in let rec
             return None
         
         return newAst
         
     if isinstance(ast, my.FuncCall):
+        # look up each argument of the function and replace variable if name is varName
         newAst = copy.deepcopy(ast)
         for i in range(len(newAst.args)):
             if isinstance(newAst.args[i], str) and (newAst.args[i] == str(varName).strip()):
@@ -488,6 +552,7 @@ def replaceVar(ast, varName, val):
         return newAst
 
     if isinstance(ast, my.ArrayRef):
+        # look up each subscript and replace variable if name is varName
         newAst = copy.deepcopy(ast)
         if not isinstance(newAst.name, my.ID):
             newAst.name = replaceVar(newAst.name, varName, val)
@@ -496,11 +561,13 @@ def replaceVar(ast, varName, val):
         return newAst
 
     if isinstance(ast, my.UnaryOp):
+        # Do replacement for the expressiono in the unary expression
         newAst = copy.deepcopy(ast)
         newAst.expr = replaceVar(newAst.expr, varName, val)
         return newAst
 
     if isinstance(ast, my.ExprList):
+        # Do replacement for each of the expression in expression list
         newAst = copy.deepcopy(ast)
         for i in range(len(newAst.exprs)):
             if isinstance(newAst.exprs[i], str) and (newAst.exprs[i] == str(varName).strip()):
@@ -518,11 +585,13 @@ def replaceVar(ast, varName, val):
         if varName in ast.args:
             return None
         else:
+            # Replace variable in let rec since variable is not modified in let rec
             newAst = copy.deepcopy(ast)
             newAst.assignedExpr = replaceVar(newAst.assignedExpr, varName, val)
             if newAst.assignedExpr is None:
                 return None
             
+            # Do the variable replacement to the body of let rec
             newAst.bodyExpr = replaceVar(newAst.bodyExpr, varName, val)
             
             if newAst.bodyExpr is None:
@@ -532,7 +601,7 @@ def replaceVar(ast, varName, val):
         
    
     return ast
-
+#------------------------ variable replacement algorithm End -------------------
 
 inputFile = sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
