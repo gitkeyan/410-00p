@@ -1,5 +1,5 @@
 # example of how to run this script
-# python checkin6simp.py /Users/abc/Desktop/project3inputs/checkin6_input1
+# python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
 
 from pycparser import parse_file
 from pycparser.c_ast import *
@@ -606,13 +606,8 @@ def replaceVar(ast, varName, val):
 inputFile = sys.argv[1]
 dummyName = makeDummyCFile(inputFile)
 
-ast = parse_file(dummyName)
-
-
-ast1 = transform(ast)
-
-visitor = LHSPrinter()
-visitor.visit(ast1)
+ast = parse_file(dummyName)    # pycparser to minic_ast  ast
+ast1 = transform(ast)          # minic_ast to myfunctional_ast
 
 print("Input:\n")
 f = open(dummyName, 'r')
