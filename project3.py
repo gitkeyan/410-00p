@@ -313,7 +313,10 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         return statement
     
     
-    # ------------------------ Checkin 6 starts here ---------------------------        
+    # ------------------------ Checkin 6 starts here ---------------------------
+    if isinstance(ast, my.LetrecCall):
+        return ast
+            
     if isinstance(ast, While):
         # Find all the modified variables in the loop using the visitor 
         # implmented above
@@ -322,6 +325,28 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         nonDeclaredVars = visitorF.varLst.difference(visitorF.declaredVar)
         lhsVar = tuple([var for var in visitorF.get_LHSVar()])
         
+        # make the recusive call object for let rec and add it to the end of 
+        # the list of statements to be executed within the loop 
+        recursiveCall = my.LetrecCall('loop', lhsVar, level + 3)     
+        newStmt = Block(ast.stmt.block_items + [recursiveCall])
+        loopStatements = minicToFunctional(newStmt, [], [], level + 3)
+        
+        # make the ternary operation that determines if the statements in the
+        # loop should be executed
+        cond = minicToFunctional(ast.cond, [], [])
+        ifStatement = my.TernaryOp(cond, loopStatements, lhsVar, level + 2)
+        
+        # recursive let
+        recursiveLet = my.Letrec('loop', lhsVar, ifStatement, recursiveCall, level + 1)
+        
+        # add the variables written within the loop into the return list and
+        # make the let binding for the variables returned from let rec
+        newReturnLst = returnLst + list(lhsVar) 
+        body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
+        statement = my.Let(lhsVar, recursiveLet, body, level)
+        
+        
+        '''
         # translate the statements in the loop to functional programming
         assignedStatements = minicToFunctional(ast.stmt, [], [], level + 3)
         
@@ -338,6 +363,9 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         newReturnLst = returnLst + list(lhsVar) 
         body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
         statement = my.Letrec('loop', lhsVar, ifStatement, body, level)
+        '''
+        
+        
         return statement
     
     if isinstance(ast, DoWhile):
@@ -409,7 +437,6 @@ def simplify(ast):
         # simplify both assgined Expression as well as the body expression
         newAst.assignedExpr = simplify(newAst.assignedExpr)
         newAst.bodyExpr = simplify(newAst.bodyExpr)
-        
 
         return newAst
         
@@ -493,6 +520,11 @@ def replaceVar(ast, varName, val):
             if newAst.assignedExpr is None:
                 return None
                 
+            newAst.bodyExpr = replaceVar(newAst.bodyExpr, varName, val) 
+            
+            if newAst.bodyExpr is None:
+                return None    
+                
         return newAst
         
     if isinstance(ast, my.ID):
@@ -505,6 +537,7 @@ def replaceVar(ast, varName, val):
 
         
     if isinstance(ast, my.ReturnTuples):
+        
         # Replace the variable named as varName with the value val in the return
         # tuple
         newAst = copy.deepcopy(ast)
@@ -513,7 +546,11 @@ def replaceVar(ast, varName, val):
             newAst.exprs = list(newAst.exprs)
         
         for i in range(len(ast.exprs)):
-            if isinstance(newAst.exprs[i], str) and (newAst.exprs[i] == str(varName).strip()):
+            
+            if isinstance(newAst.exprs[i], str) and (newAst.exprs[i] == str(varName).strip()):                
+                newAst.exprs[i] = copy.deepcopy(val)
+                newAst.exprs[i].level = 0 
+            if str(newAst.exprs[i]).strip() == str(varName).strip():
                 newAst.exprs[i] = copy.deepcopy(val)
                 newAst.exprs[i].level = 0 
         return newAst
@@ -610,6 +647,21 @@ def replaceVar(ast, varName, val):
                 return None
             return newAst
         
+    if isinstance(ast, my.LetrecCall):
+        # Do replacement for each of the argument in argument list
+        newAst = copy.deepcopy(ast)
+        
+        if isinstance(newAst.args, tuple):
+            newAst.args = list(newAst.args)
+        for i in range(len(newAst.args)):
+            if isinstance(newAst.args[i], str) and (newAst.args[i] == str(varName).strip()):
+                newAst.args[i] = copy.deepcopy(val)
+                newAst.args[i].level = 0
+                
+            else:
+                newAst.args[i] = replaceVar(newAst.args[i], varName, val)
+
+        return newAst
         
    
     return ast
