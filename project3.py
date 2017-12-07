@@ -11,7 +11,7 @@ Then print the functional programming equivalent of the C code
 Then print the simplified functional programming equivalent of the C code 
 '''
 # example of how to run this script
-# python checkin_test.py /Users/abc/Desktop/project3inputs/checkin3_input1
+# python project3.py /Users/abc/Desktop/project3inputs/checkin3_input1
 
 from pycparser import parse_file
 from pycparser.c_ast import *
