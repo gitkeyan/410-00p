@@ -127,6 +127,9 @@ class ArrayRef(Node):
     def __str__(self):
         return self.level * "    " + str(self.name) +"["+ str(self.subscript) + "]"
         
+    def updateLevel(self, newLevel = 0):
+        self.level = newLevel
+        
     attr_names = ()
 
 
@@ -141,6 +144,9 @@ class BinaryOp(Node):
 
     def __str__(self):
         return self.level * "    " + "(" + str(self.left) + " " + str(self.op) + " " +  str(self.right) + ")"
+        
+    def updateLevel(self, newLevel = 0):
+        self.level = newLevel
     
     attr_names = ('op', )
 
@@ -152,9 +158,12 @@ class Constant(Node):
         self.value = value
         self.level = level
 
-        
     def __str__(self):
         return self.level * "    " + str(self.value)
+        
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        
     attr_names = ('value', )
 
 
@@ -170,6 +179,9 @@ class ExprList(Node):
         for expr in self.exprs:
             strLst += str(expr) + ", "
         return strLst[:-2] + ""
+        
+    def updateLevel(self, newLevel):
+        pass
             
     attr_names = ()
 
@@ -189,6 +201,9 @@ class FuncCall(Node):
 
         return self.level * "    " + str(self.name) + "(" + argString[:-2] + ")" 
     
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        
     attr_names = ()
 
 class FuncDef(Node):
@@ -228,7 +243,9 @@ class ID(Node):
 
     def __str__(self):
         return self.level * "    " + str(self.name)
-
+    
+    def updateLevel(self, newLevel):
+        self.level = newLevel
 
     attr_names = ('name', )
 
@@ -263,6 +280,12 @@ class TernaryOp(Node):
 
         return output
 
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        if isinstance(self.iftrue, Node):
+            self.iftrue.updateLevel(newLevel + 1)
+        if isinstance(self.iffalse, Node):
+            self.iffalse.updateLevel(newLevel + 1)
     
     attr_names = ()
 
@@ -277,6 +300,9 @@ class UnaryOp(Node):
     def __str__(self):
         return self.level * "    " + str(self.op) + "(" +str(self.expr) + ")"
 
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        
     attr_names = ('op', )
 
 
@@ -301,6 +327,10 @@ class ReturnTuples(Node):
             else:
                 output = str(self.exprs[0])
         return self.level * "    " + output
+        
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        
     attr_names = ()
 
 
@@ -387,7 +417,14 @@ class Let(Node):
                 output += bodyExprStr.strip()
 
             return output
+        
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        if isinstance(self.assignedExpr, Node):
+            self.assignedExpr.updateLevel(newLevel + 1)
             
+        if isinstance(self.bodyExpr, Node):
+            self.bodyExpr.updateLevel(newLevel + 1)
 
     attr_names = ()
 
@@ -423,6 +460,14 @@ class Letrec(Node):
         else:
             output += "\n" + str(self.bodyExpr) 
         return output
+        
+    def updateLevel(self, newLevel):
+        self.level = newLevel
+        if isinstance(self.assignedExpr, Node):
+            self.assignedExpr.updateLevel(newLevel + 1)
+            
+        if isinstance(self.bodyExpr, Node):
+            self.bodyExpr.updateLevel(newLevel + 1)
 
 class LetrecCall(Node):
     # An expression that calls a let rec binding 
@@ -440,5 +485,7 @@ class LetrecCall(Node):
             output += " " + str(arg)
         
         return output
-
+        
+    def updateLevel(self, newLevel):
+        self.level = newLevel
 
