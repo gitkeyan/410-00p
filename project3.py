@@ -408,6 +408,10 @@ def simplify(ast):
     if isinstance(newAst, my.FuncDef):
         # prototype don't need simplification, but its body does
         newAst.body = simplify(newAst.body)
+        
+        # call on updateLevel to make the bindings line up
+        if isinstance(newAst.body, my.Node):
+            newAst.body.updateLevel(1);
         return newAst
         
     if isinstance(newAst, my.Let):        
