@@ -345,27 +345,6 @@ def minicToFunctional(ast, blockItemLst, returnLst, level = 0):
         body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
         statement = my.Let(lhsVar, recursiveLet, body, level)
         
-        
-        '''
-        # translate the statements in the loop to functional programming
-        assignedStatements = minicToFunctional(ast.stmt, [], [], level + 3)
-        
-        # make the recusive call for let rec
-        recursiveCall = my.LetrecCall('loop', lhsVar, level + 3)     
-        
-        # takes the statements in the loop as assigned expression and calls on
-        # the let rec function in the body   
-        recursiveLet = my.Let(lhsVar, assignedStatements, recursiveCall, level + 2)
-        
-        cond = minicToFunctional(ast.cond, [], [])
-        ifStatement = my.TernaryOp(cond, recursiveLet, lhsVar, level + 1)        
-
-        newReturnLst = returnLst + list(lhsVar) 
-        body = minicToFunctional(blockItemLst[0], blockItemLst[1:], newReturnLst, level + 1)
-        statement = my.Letrec('loop', lhsVar, ifStatement, body, level)
-        '''
-        
-        
         return statement
     
     if isinstance(ast, DoWhile):
